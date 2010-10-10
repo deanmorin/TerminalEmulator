@@ -23,9 +23,9 @@
 ------------------------------------------------------------------------------*/
 BOOL Connect(HWND hWnd) {
     
-    PWNDDATA        pwd;
-    COMMTIMEOUTS    timeOut;
-    DWORD           dwThreadid;
+    PWNDDATA        pwd         = {0};
+    COMMTIMEOUTS    timeOut     = {0};
+    DWORD           dwThreadid  = 0;
 
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
 
@@ -33,7 +33,7 @@ BOOL Connect(HWND hWnd) {
     pwd->hPort = CreateFile(pwd->lpszCommName,
                           GENERIC_READ | GENERIC_WRITE, 0,
                           NULL, OPEN_EXISTING,
-                          FILE_FLAG_OVERLAPPED, NULL);
+                          FILE_ATTRIBUTE_NORMAL, NULL);
 
     if (pwd->hPort == INVALID_HANDLE_VALUE) {
         if (GetLastError() == ERROR_FILE_NOT_FOUND) {
@@ -44,26 +44,41 @@ BOOL Connect(HWND hWnd) {
         return FALSE;
     }
 
+
+    if (!EscapeCommFunction(pwd->hPort, SETRTS)) {
+        DISPLAY_ERROR("Error sending RTS signal");
+    }
+    if (!EscapeCommFunction(pwd->hPort, SETDTR)) {
+        DISPLAY_ERROR("Error sending DTR signal");
+    }
+
     /* set timeouts for the port */
     if (!GetCommTimeouts(pwd->hPort, &pwd->defaultTimeOuts)) {
         DISPLAY_ERROR("Error retrieving comm timeouts");
+        return FALSE;
     }
     timeOut.ReadIntervalTimeout         = 50;
     timeOut.ReadTotalTimeoutConstant    = 50;
     timeOut.ReadTotalTimeoutMultiplier  = 10;
     timeOut.WriteTotalTimeoutConstant   = 50;
     timeOut.WriteTotalTimeoutMultiplier = 10;
+    /*
+    timeOut.ReadIntervalTimeout         = 10;
+    timeOut.WriteTotalTimeoutConstant   = 5000;
+    */
     if (!SetCommTimeouts(pwd->hPort, &timeOut)) {
         DISPLAY_ERROR("Could not set comm timeouts");
+        return FALSE;
     }
     
-    /* create thread for reading */
+    /* create thread for reading *//*
     pwd->hThread = CreateThread(NULL, 0,
                                 (LPTHREAD_START_ROUTINE) ReadThreadProc,
                                 hWnd, 0, &dwThreadid);
 
     if (pwd->hThread == INVALID_HANDLE_VALUE) {
         DISPLAY_ERROR("Error creating read thread");
+        return FALSE;
     }
                                 
     /* enable/disable appropriate menu choices */
@@ -109,11 +124,11 @@ VOID Disconnect(HWND hWnd) {
     }
     
     ResumeThread(pwd->hThread); // do i need this?
-    
+    /*
     do {
         GetExitCodeThread(pwd->hThread, &dwThreadid);
     } while (dwThreadid = STILL_ACTIVE);
-            
+      */      
     CloseHandle(pwd->hThread);
     CloseHandle(pwd->hPort);
     pwd->hPort = NULL;

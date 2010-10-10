@@ -146,8 +146,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
                          WPARAM wParam, LPARAM lParam) {
                              
     PWNDDATA        pwd             = NULL;
-    DCB             dcb;
+    //DCB             dcb;
     HDC             hdc;
+    COMMCONFIG      cc;
     PAINTSTRUCT     ps;
     TEXTMETRIC      tm;
     int             cyPos           = CELL_PADDING;
@@ -171,9 +172,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
             pwd->hPort = NULL;
             SetWindowLongPtr(hWnd, 0, (LONG_PTR) pwd);
 
-            FillMemory(&dcb, sizeof(DCB), 0);
-            dcb.DCBlength = sizeof(dcb);
-            BuildCommDCB((LPCWSTR)"96,N,8,1", &dcb);
+            cc.dwSize = sizeof(COMMCONFIG);
+            GetCommConfig(pwd->hPort, &cc, &cc.dwSize);
+            //FillMemory(&cc.dcb, sizeof(DCB), 0);
+            cc.dcb.DCBlength = sizeof(DCB);
+            BuildCommDCB((LPCWSTR)"96,N,8,1", &cc.dcb);
 
 
             //get rid of
@@ -206,7 +209,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
             
 
         case WM_PAINT:
-            
+            /*
             pwd         = (PWNDDATA) GetWindowLongPtr(hWnd, 0);      
             ptCharNode  = pwd->textInfo.ptCharHead;
             pColorNode  = pwd->textInfo.pColorHead;
@@ -220,8 +223,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
                 /* 
                  * Adds the number of characters to pszRepaintBuf that are 
                  * guaranteed to fit on a line.
-                 */
-                while (i < pwd->textInfo.uMinStrLength  &&  ptCharNode != NULL) {
+                 */ 
+                /*while (i < pwd->textInfo.uMinStrLength  &&  ptCharNode != NULL) {
                     pszRepaintBuf[i++] = ptCharNode->data;
                     ptCharNode = ptCharNode->next;
                 }
@@ -230,7 +233,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
                  * Measures the line so far, and adds the remaining characters 
                  * that can fit on the line, one-by-one.
                  */
-                if (ptCharNode != NULL) {
+               /* if (ptCharNode != NULL) {
                     
                     GetTextExtentPoint32(hdc, pszRepaintBuf, i, &size);  
 
@@ -250,7 +253,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
                 cyPos += tm.tmHeight + tm.tmExternalLeading;
             }
         
-            EndPaint(hWnd, &ps);
+            EndPaint(hWnd, &ps);*/
             return 0;
 
 
@@ -272,7 +275,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 
         case WM_DESTROY:
             Disconnect(hWnd);
-            DISPLAY_ERROR("um");
             PostQuitMessage(0);
             return 0;
 

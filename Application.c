@@ -47,8 +47,7 @@ DWORD WINAPI ReadThreadProc(LPVOID lpParameter) { //change to handle?
     if ((overlap.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL)) == NULL) {
         DISPLAY_ERROR("Error creating event in read thread");
     }
-    
-    DISPLAY_ERROR("Hey, the thread works!"); 
+
     while (!bWaitingOnRead) {
 
         if (!ReadFile(pwd->hPort, szReadBuf, 1, &dwBytesRead, &overlap)) {
@@ -112,7 +111,9 @@ LRESULT PerformMenuAction(HWND hWnd, UINT message, WPARAM wParam) {
     switch (LOWORD(wParam)) {
                 
         case IDM_CONNECT:       
-            Connect(hWnd);
+            if (!Connect(hWnd)) {
+                Disconnect(hWnd);
+            }
             return 0;
 
         case IDM_DISCONNECT:
@@ -374,7 +375,7 @@ BOOL StoreTextForRepaint(HWND hWnd, TCHAR szBuffer[], COLORREF textColor) {
 ------------------------------------------------------------------------------*/
 BOOL WriteToPort(HWND hWnd, WPARAM wParam) {
     
-    PWNDDATA   pwd             = NULL;
+    PWNDDATA    pwd             = NULL;
     TCHAR       szWriteBuf[2]   = {0};
     DWORD       dwBytesRead     = 0;
 
@@ -383,6 +384,7 @@ BOOL WriteToPort(HWND hWnd, WPARAM wParam) {
     EchoBuffer(hWnd, szWriteBuf, RGB(0,0,0));
 
     if (!WriteFile(pwd->hPort, szWriteBuf, 1, &dwBytesRead, NULL)) {
+        DISPLAY_ERROR("UHOH");
         return FALSE;
     }
     return TRUE;
