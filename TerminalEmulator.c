@@ -174,7 +174,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 
             cc.dwSize = sizeof(COMMCONFIG);
             GetCommConfig(pwd->hPort, &cc, &cc.dwSize);
-            //FillMemory(&cc.dcb, sizeof(DCB), 0);
+            FillMemory(&cc.dcb, sizeof(DCB), 0);
             cc.dcb.DCBlength = sizeof(DCB);
             BuildCommDCB((LPCWSTR)"96,N,8,1", &cc.dcb);
 

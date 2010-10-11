@@ -10,6 +10,8 @@
 #include <tchar.h>
 #include "Application.h"
 #include "Menu.h"
+#include "Physical.h"
+#include "Presentation.h"
 #include "Session.h"
 
 #pragma warning(disable:4002)
@@ -49,6 +51,7 @@ typedef struct textInfo {
 typedef struct wndData {
     HANDLE          hPort;
     LPTSTR          lpszCommName;
+    BOOL            bConnected;
     HANDLE          hThread;
     DWORD           dwThreadid;
     COMMTIMEOUTS    defaultTimeOuts;

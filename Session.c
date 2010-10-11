@@ -29,11 +29,11 @@ BOOL Connect(HWND hWnd) {
 
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
 
-    /* open serial port */
+    // open serial port
     pwd->hPort = CreateFile(pwd->lpszCommName,
                           GENERIC_READ | GENERIC_WRITE, 0,
                           NULL, OPEN_EXISTING,
-                          FILE_ATTRIBUTE_NORMAL, NULL);
+                          FILE_FLAG_OVERLAPPED, NULL);
 
     if (pwd->hPort == INVALID_HANDLE_VALUE) {
         if (GetLastError() == ERROR_FILE_NOT_FOUND) {
@@ -43,6 +43,7 @@ BOOL Connect(HWND hWnd) {
         }
         return FALSE;
     }
+    pwd->bConnected = TRUE;
 
 
     if (!EscapeCommFunction(pwd->hPort, SETRTS)) {
@@ -52,26 +53,20 @@ BOOL Connect(HWND hWnd) {
         DISPLAY_ERROR("Error sending DTR signal");
     }
 
-    /* set timeouts for the port */
+    // set timeouts for the port
     if (!GetCommTimeouts(pwd->hPort, &pwd->defaultTimeOuts)) {
         DISPLAY_ERROR("Error retrieving comm timeouts");
         return FALSE;
     }
-    timeOut.ReadIntervalTimeout         = 50;
-    timeOut.ReadTotalTimeoutConstant    = 50;
-    timeOut.ReadTotalTimeoutMultiplier  = 10;
-    timeOut.WriteTotalTimeoutConstant   = 50;
-    timeOut.WriteTotalTimeoutMultiplier = 10;
-    /*
     timeOut.ReadIntervalTimeout         = 10;
     timeOut.WriteTotalTimeoutConstant   = 5000;
-    */
+
     if (!SetCommTimeouts(pwd->hPort, &timeOut)) {
         DISPLAY_ERROR("Could not set comm timeouts");
         return FALSE;
     }
     
-    /* create thread for reading *//*
+    // create thread for reading
     pwd->hThread = CreateThread(NULL, 0,
                                 (LPTHREAD_START_ROUTINE) ReadThreadProc,
                                 hWnd, 0, &dwThreadid);
@@ -81,7 +76,7 @@ BOOL Connect(HWND hWnd) {
         return FALSE;
     }
                                 
-    /* enable/disable appropriate menu choices */
+    // enable/disable appropriate menu choices
     EnableMenuItem(GetMenu(hWnd), IDM_CONNECT,    MF_GRAYED);
     EnableMenuItem(GetMenu(hWnd), IDM_DISCONNECT, MF_ENABLED);
     //disable others
@@ -118,17 +113,19 @@ VOID Disconnect(HWND hWnd) {
     if (pwd->hPort == NULL) {
         return;
     }
+
+    pwd->bConnected = FALSE;
    
     if (!SetCommTimeouts(pwd->hPort, &pwd->defaultTimeOuts)) {
         DISPLAY_ERROR("Could not reset comm timeouts to defaults");
     }
     
-    ResumeThread(pwd->hThread); // do i need this?
-    /*
+    //ResumeThread(pwd->hThread);
+    
     do {
         GetExitCodeThread(pwd->hThread, &dwThreadid);
-    } while (dwThreadid = STILL_ACTIVE);
-      */      
+    } while (dwThreadid == STILL_ACTIVE);
+
     CloseHandle(pwd->hThread);
     CloseHandle(pwd->hPort);
     pwd->hPort = NULL;
