@@ -56,7 +56,7 @@ BOOL Connect(HWND hWnd) {
     // set timeouts for the port
     if (!GetCommTimeouts(pwd->hPort, &pwd->defaultTimeOuts)) {
         DISPLAY_ERROR("Error retrieving comm timeouts");
-        return FALSE;
+        return FALSE;   
     }
     timeOut.ReadIntervalTimeout         = 10;
     timeOut.WriteTotalTimeoutConstant   = 5000;
@@ -114,14 +114,14 @@ VOID Disconnect(HWND hWnd) {
         return;
     }
 
+    // this will end the outer while loop in the read thread
     pwd->bConnected = FALSE;
    
     if (!SetCommTimeouts(pwd->hPort, &pwd->defaultTimeOuts)) {
         DISPLAY_ERROR("Could not reset comm timeouts to defaults");
     }
-    
-    //ResumeThread(pwd->hThread);
-    
+
+    // let the read thread finish up
     do {
         GetExitCodeThread(pwd->hThread, &dwThreadid);
     } while (dwThreadid == STILL_ACTIVE);

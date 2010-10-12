@@ -299,39 +299,3 @@ BOOL StoreTextForRepaint(HWND hWnd, TCHAR szBuffer[], COLORREF textColor) {
     }
     return TRUE;
 }
-
-/*------------------------------------------------------------------------------
--- FUNCTION:    WriteToPort
---
--- DATE:        Oct 03, 2010
---
--- REVISIONS:   (Date and Description)
---
--- DESIGNER:    Dean Morin
---
--- PROGRAMMER:  Dean Morin
---
--- INTERFACE:   BOOL WriteToPort(HWND, WPARAM)
---
--- RETURNS:     True if the port write was successful.
---
--- NOTES:
---              After displaying the character in wParam on screen, it writes it
---              to the serial port.
-------------------------------------------------------------------------------*/
-BOOL WriteToPort(HWND hWnd, WPARAM wParam) {
-    
-    PWNDDATA    pwd             = NULL;
-    TCHAR       szWriteBuf[2]   = {0};
-    DWORD       dwBytesRead     = 0;
-
-    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
-    _stprintf(szWriteBuf, TEXT("%C", wParam), wParam);           
-    EchoBuffer(hWnd, szWriteBuf, RGB(0,0,0));
-
-    if (!WriteFile(pwd->hPort, szWriteBuf, 1, &dwBytesRead, NULL)) {
-        DISPLAY_ERROR("UHOH");
-        return FALSE;
-    }
-    return TRUE;
-}

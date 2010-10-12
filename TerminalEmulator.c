@@ -146,11 +146,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
                          WPARAM wParam, LPARAM lParam) {
                              
     PWNDDATA        pwd             = NULL;
-    //DCB             dcb;
-    HDC             hdc;
-    COMMCONFIG      cc;
-    PAINTSTRUCT     ps;
-    TEXTMETRIC      tm;
+    HDC             hdc             = {0};
+    COMMCONFIG      cc              = {0};
+    PAINTSTRUCT     ps              = {0};
+    TEXTMETRIC      tm              = {0};
     int             cyPos           = CELL_PADDING;
     static int      cxClient        = 0;
     static int      cyClient        = 0;
@@ -258,7 +257,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 
 
         case WM_CHAR:
-            
+            return ProcessWrite(hWnd, wParam, FALSE); //check for ctrl down
+            /*
             pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
 
             if (wParam == VK_ESCAPE) {
@@ -267,7 +267,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
                 WriteToPort(hWnd, wParam);
             }
             return 0;
-
+            */
 
         case WM_COMMAND:
             return PerformMenuAction(hWnd, message, wParam);
