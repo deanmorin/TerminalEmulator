@@ -18,8 +18,6 @@
 
 /*--------------------Constants Used in Calculations--------------------------*/
 #define ASCII_DIGIT_OFFSET  48      // The ascii value for '0'
-#define CELL_PADDING        10 
-#define TILDE               126
 
 #define DISPLAY_ERROR(x)    MessageBox(NULL, TEXT(x), TEXT(""), MB_OK)
 
