@@ -152,7 +152,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
     TEXTMETRIC      tm              = {0};
     static int      cxClient        = 0;
     static int      cyClient        = 0;
-    BOOL            bNonCharKey     = FALSE;
 
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
 
@@ -240,15 +239,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 
 
         case WM_KEYDOWN:
-            if (wParam < 0x23  ||  wParam > 0x28  ||  !pwd->bConnected) {
-                return 0;
+            if (pwd->bConnected) {
+                // check if it's a special virtual-key that we need to handle
+                if ((wParam >= VK_END  &&  wParam <= VK_DOWN)  ||
+                    (wParam >= VK_F1   &&  wParam <= VK_F4)) {
+                    
+                    if (!ProcessWrite(hWnd, wParam, TRUE)) {
+                        DISPLAY_ERROR("Error writing to serial port");
+                    }
+                }
             }
-            bNonCharKey = TRUE;
-            // fall through to WW_CHAR
+            return 0;
+
 
         case WM_CHAR:
             if (pwd->bConnected) {
-                if (!ProcessWrite(hWnd, wParam, bNonCharKey)) {
+                if (!ProcessWrite(hWnd, wParam, FALSE)) {
                     DISPLAY_ERROR("Error writing to serial port");
                 }
             }
