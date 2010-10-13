@@ -188,55 +188,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 
             ReleaseDC(hWnd, hdc);
             
-
-        case WM_PAINT:
             /*
-            pwd         = (PWNDDATA) GetWindowLongPtr(hWnd, 0);      
-            ptCharNode  = pwd->textInfo.ptCharHead;
-            pColorNode  = pwd->textInfo.pColorHead;
-            hdc         = BeginPaint(hWnd, &ps); 
-            
-            while (ptCharNode != NULL) {
-                
-                GetTextMetrics(hdc, &tm);
-                i = 0;
-                
-                /* 
-                 * Adds the number of characters to pszRepaintBuf that are 
-                 * guaranteed to fit on a line.
-                 */ 
-                /*while (i < pwd->textInfo.uMinStrLength  &&  ptCharNode != NULL) {
-                    pszRepaintBuf[i++] = ptCharNode->data;
-                    ptCharNode = ptCharNode->next;
-                }
-
-                /*
-                 * Measures the line so far, and adds the remaining characters 
-                 * that can fit on the line, one-by-one.
-                 */
-               /* if (ptCharNode != NULL) {
-                    
-                    GetTextExtentPoint32(hdc, pszRepaintBuf, i, &size);  
-
-                    while (size.cx + CELL_PADDING < cxClient - tm.tmMaxCharWidth
-                           &&  ptCharNode != NULL) {
-
-                        pszRepaintBuf[i++] = ptCharNode->data;
-                        ptCharNode = ptCharNode->next;     
-                        GetTextExtentPoint32(hdc, pszRepaintBuf, i, &size);
-                    }                
-                }
-                TextOut(hdc, CELL_PADDING, cyPos, pszRepaintBuf, i);
-
-                GetTextExtentPoint32(hdc, pszRepaintBuf, i, &size);
-                pwd->textInfo.cxPos = size.cx + CELL_PADDING;
-                pwd->textInfo.cyPos = cyPos;
-                cyPos += tm.tmHeight + tm.tmExternalLeading;
-            }
-        
-            EndPaint(hWnd, &ps);*/
+        case WM_PAINT:
             return 0;
-
+            */
 
         case WM_KEYDOWN:
             if (pwd->bConnected) {
