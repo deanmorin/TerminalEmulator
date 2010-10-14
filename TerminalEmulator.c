@@ -145,20 +145,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, 
                          WPARAM wParam, LPARAM lParam) {
                              
-    PWNDDATA        pwd             = NULL;
-    //DCB             dcb;
-    HDC             hdc;
-    COMMCONFIG      cc;
-    PAINTSTRUCT     ps;
-    TEXTMETRIC      tm;
-    int             cyPos           = CELL_PADDING;
+    PWNDDATA        pwd             = {0};
+    HDC             hdc             = {0};
+    COMMCONFIG      cc              = {0};
+    PAINTSTRUCT     ps              = {0};
+    TEXTMETRIC      tm              = {0};
     static int      cxClient        = 0;
     static int      cyClient        = 0;
-    UINT            i               = 0;
-    PTCHARNODE      ptCharNode      = NULL;
-    PCOLORNODE      pColorNode      = NULL;
-    static TCHAR    *pszRepaintBuf;
-    SIZE            size;
+
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
 
 
     switch (message) {
@@ -168,8 +163,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
             if ((pwd = (PWNDDATA) malloc(sizeof(WNDDATA))) == 0) {
                 DISPLAY_ERROR("Error allocating memory for WNDDATA structure");
             }
-            pwd->lpszCommName = TEXT("COM3");
-            pwd->hPort = NULL;
+            pwd->lpszCommName   = TEXT("COM3");
+            pwd->hPort          = NULL;
             SetWindowLongPtr(hWnd, 0, (LONG_PTR) pwd);
 
             cc.dwSize = sizeof(COMMCONFIG);
@@ -178,105 +173,59 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
             cc.dcb.DCBlength = sizeof(DCB);
             BuildCommDCB((LPCWSTR)"96,N,8,1", &cc.dcb);
 
-
-            //get rid of
-            pwd->textInfo.ptCharHead    = NULL;
-            pwd->textInfo.ptCharTail    = NULL;
-            pwd->textInfo.pColorHead    = NULL;
-            pwd->textInfo.pColorTail    = NULL;
-            pwd->textInfo.cxPos         = CELL_PADDING;
-            pwd->textInfo.cyPos         = CELL_PADDING;
+            pwd->bConnected = FALSE;
 
             return 0;
 
 
         case WM_SIZE:
 
-            pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
             hdc = GetDC(hWnd);
             GetTextMetrics(hdc, &tm);
 
             cxClient        = LOWORD(lParam);
             cyClient        = HIWORD(lParam);
 
-            // Unneccesarry for monospace fonts
-            pszRepaintBuf   = (TCHAR*) malloc(sizeof(TCHAR)
-                                            * cxClient / tm.tmAveCharWidth * 4);  
-            // Unneccesarry for monospace fonts
-            pwd->textInfo.uMinStrLength = (cxClient - CELL_PADDING)
-                                          / tm.tmMaxCharWidth;
             ReleaseDC(hWnd, hdc);
             
-
-        case WM_PAINT:
             /*
-            pwd         = (PWNDDATA) GetWindowLongPtr(hWnd, 0);      
-            ptCharNode  = pwd->textInfo.ptCharHead;
-            pColorNode  = pwd->textInfo.pColorHead;
-            hdc         = BeginPaint(hWnd, &ps); 
-            
-            while (ptCharNode != NULL) {
-                
-                GetTextMetrics(hdc, &tm);
-                i = 0;
-                
-                /* 
-                 * Adds the number of characters to pszRepaintBuf that are 
-                 * guaranteed to fit on a line.
-                 */ 
-                /*while (i < pwd->textInfo.uMinStrLength  &&  ptCharNode != NULL) {
-                    pszRepaintBuf[i++] = ptCharNode->data;
-                    ptCharNode = ptCharNode->next;
-                }
+        case WM_PAINT:
+            return 0;
+            */
 
-                /*
-                 * Measures the line so far, and adds the remaining characters 
-                 * that can fit on the line, one-by-one.
-                 */
-               /* if (ptCharNode != NULL) {
+        case WM_KEYDOWN:
+            if (pwd->bConnected) {
+                // check if it's a special virtual-key that we need to handle
+                if ((wParam >= VK_END  &&  wParam <= VK_DOWN)  ||
+                    (wParam >= VK_F1   &&  wParam <= VK_F4)) {
                     
-                    GetTextExtentPoint32(hdc, pszRepaintBuf, i, &size);  
-
-                    while (size.cx + CELL_PADDING < cxClient - tm.tmMaxCharWidth
-                           &&  ptCharNode != NULL) {
-
-                        pszRepaintBuf[i++] = ptCharNode->data;
-                        ptCharNode = ptCharNode->next;     
-                        GetTextExtentPoint32(hdc, pszRepaintBuf, i, &size);
-                    }                
+                    if (!ProcessWrite(hWnd, wParam, TRUE)) {
+                        DISPLAY_ERROR("Error writing to serial port");
+                    }
                 }
-                TextOut(hdc, CELL_PADDING, cyPos, pszRepaintBuf, i);
-
-                GetTextExtentPoint32(hdc, pszRepaintBuf, i, &size);
-                pwd->textInfo.cxPos = size.cx + CELL_PADDING;
-                pwd->textInfo.cyPos = cyPos;
-                cyPos += tm.tmHeight + tm.tmExternalLeading;
             }
-        
-            EndPaint(hWnd, &ps);*/
             return 0;
 
 
         case WM_CHAR:
-            
-            pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
-
-            if (wParam == VK_ESCAPE) {
-                Disconnect(hWnd);
-            } else if (wParam >= VK_SPACE  &&  wParam <= TILDE) {
-                WriteToPort(hWnd, wParam);
+            if (pwd->bConnected) {
+                if (!ProcessWrite(hWnd, wParam, FALSE)) {
+                    DISPLAY_ERROR("Error writing to serial port");
+                }
             }
             return 0;
 
 
         case WM_COMMAND:
-            return PerformMenuAction(hWnd, message, wParam);
+            PerformMenuAction(hWnd, message, wParam);
+            return 0;
 
 
         case WM_DESTROY:
             Disconnect(hWnd);
             PostQuitMessage(0);
             return 0;
+
 
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);

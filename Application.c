@@ -49,7 +49,7 @@
 -- NOTES:
 --              Responds to a user's selection of a menu item.
 ------------------------------------------------------------------------------*/
-LRESULT PerformMenuAction(HWND hWnd, UINT message, WPARAM wParam) {
+VOID PerformMenuAction(HWND hWnd, UINT message, WPARAM wParam) {
     
     PWNDDATA   pwd = NULL;
     COMMCONFIG  cc;
@@ -60,34 +60,34 @@ LRESULT PerformMenuAction(HWND hWnd, UINT message, WPARAM wParam) {
             if (!Connect(hWnd)) {
                 Disconnect(hWnd);
             }
-            return 0;
+            return;
 
         case IDM_DISCONNECT:
             Disconnect(hWnd);
-            return 0;
+            return;
 
         case IDM_EXIT:
             PostMessage(hWnd, WM_DESTROY, 0, 0);
-            return 0;
+            return;
 
-        case IDM_COM1:  SelectPort(hWnd, IDM_COM1);  return 0;
-        case IDM_COM2:  SelectPort(hWnd, IDM_COM2);  return 0;
-        case IDM_COM3:  SelectPort(hWnd, IDM_COM3);  return 0;
-        case IDM_COM4:  SelectPort(hWnd, IDM_COM4);  return 0;
-        case IDM_COM5:  SelectPort(hWnd, IDM_COM5);  return 0;
-        case IDM_COM6:  SelectPort(hWnd, IDM_COM6);  return 0;
-        case IDM_COM7:  SelectPort(hWnd, IDM_COM7);  return 0;
-        case IDM_COM8:  SelectPort(hWnd, IDM_COM8);  return 0;
-        case IDM_COM9:  SelectPort(hWnd, IDM_COM9);  return 0;
+        case IDM_COM1:  SelectPort(hWnd, IDM_COM1);  return;
+        case IDM_COM2:  SelectPort(hWnd, IDM_COM2);  return;
+        case IDM_COM3:  SelectPort(hWnd, IDM_COM3);  return;
+        case IDM_COM4:  SelectPort(hWnd, IDM_COM4);  return;
+        case IDM_COM5:  SelectPort(hWnd, IDM_COM5);  return;
+        case IDM_COM6:  SelectPort(hWnd, IDM_COM6);  return;
+        case IDM_COM7:  SelectPort(hWnd, IDM_COM7);  return;
+        case IDM_COM8:  SelectPort(hWnd, IDM_COM8);  return;
+        case IDM_COM9:  SelectPort(hWnd, IDM_COM9);  return;
 
         case IDM_COMMSET:
             pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
             CommConfigDialog(pwd->lpszCommName, hWnd, &cc);
             SetCommState(pwd->hPort, &cc.dcb);
-		    return 0;
+		    return;
         
         default:
-            return 0;
+            return;
     }
 }
 
@@ -111,7 +111,7 @@ LRESULT PerformMenuAction(HWND hWnd, UINT message, WPARAM wParam) {
 --              screen, using the COLORREF as the text color. szBuffer and
 --              textColor are used as arguments in StoreTextForRepaint.
 ------------------------------------------------------------------------------*/
-VOID EchoBuffer(HWND hWnd, TCHAR szBuffer[], COLORREF textColor) {
+/*VOID EchoBuffer(HWND hWnd, TCHAR szBuffer[], COLORREF textColor) {
 
     PWNDDATA   pwd = NULL;
     HDC         hdc = NULL;
@@ -143,7 +143,7 @@ VOID EchoBuffer(HWND hWnd, TCHAR szBuffer[], COLORREF textColor) {
         pwd->textInfo.cyPos += tm.tmHeight + tm.tmExternalLeading;
     }       
     ReleaseDC(hWnd, hdc);
-}
+}*/
 
 /*------------------------------------------------------------------------------
 -- FUNCTION:    ReadPort
@@ -296,42 +296,6 @@ BOOL StoreTextForRepaint(HWND hWnd, TCHAR szBuffer[], COLORREF textColor) {
         pwd->textInfo.pColorTail->next = newColorNode;
         pwd->textInfo.pColorTail       = pwd->textInfo.pColorTail->next;
         pwd->textInfo.pColorTail->next = NULL;
-    }
-    return TRUE;
-}
-
-/*------------------------------------------------------------------------------
--- FUNCTION:    WriteToPort
---
--- DATE:        Oct 03, 2010
---
--- REVISIONS:   (Date and Description)
---
--- DESIGNER:    Dean Morin
---
--- PROGRAMMER:  Dean Morin
---
--- INTERFACE:   BOOL WriteToPort(HWND, WPARAM)
---
--- RETURNS:     True if the port write was successful.
---
--- NOTES:
---              After displaying the character in wParam on screen, it writes it
---              to the serial port.
-------------------------------------------------------------------------------*/
-BOOL WriteToPort(HWND hWnd, WPARAM wParam) {
-    
-    PWNDDATA    pwd             = NULL;
-    TCHAR       szWriteBuf[2]   = {0};
-    DWORD       dwBytesRead     = 0;
-
-    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
-    _stprintf(szWriteBuf, TEXT("%C", wParam), wParam);           
-    EchoBuffer(hWnd, szWriteBuf, RGB(0,0,0));
-
-    if (!WriteFile(pwd->hPort, szWriteBuf, 1, &dwBytesRead, NULL)) {
-        DISPLAY_ERROR("UHOH");
-        return FALSE;
     }
     return TRUE;
 }
