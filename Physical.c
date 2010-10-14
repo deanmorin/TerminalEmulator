@@ -64,10 +64,7 @@ DWORD WINAPI ReadThreadProc(HWND hWnd) {
     DWORD           dwError         = 0;
     COMSTAT         cs              = {0};
 
-
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
-
-
     if ((overlap.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL)) == NULL) {
         DISPLAY_ERROR("Error creating event in read thread");
     }
@@ -75,22 +72,21 @@ DWORD WINAPI ReadThreadProc(HWND hWnd) {
     while (pwd->bConnected) {
 
         SetCommMask(pwd->hPort, EV_RXCHAR);
-
         if (!WaitCommEvent(pwd->hPort, &dwEvent, &overlap)) {
             ProcessCommError(pwd->hPort);
         }
         ClearCommError(pwd->hPort, &dwError, &cs);
-
-
-        if ((dwEvent & EV_RXCHAR) && cs.cbInQue) {               
-            
+        
+        // ensures that there is a character at the port
+        if (cs.cbInQue) {                       
             if (!ReadFile(pwd->hPort, szReadBuf, cs.cbInQue, 
                           &dwBytesRead, &overlap)) {
-                
+                // read is incomplete or had an error
                 ProcessCommError(pwd->hPort);
                 GetOverlappedResult(pwd->hThread, &overlap, &dwBytesRead, TRUE);
             }             
-            if (dwBytesRead > 0) {
+            if (dwBytesRead) {
+                // read completed successfully
                 ProcessRead(hWnd, szReadBuf, dwBytesRead);
                 InvalidateRect(hWnd, NULL, FALSE);
             }

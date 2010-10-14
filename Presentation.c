@@ -1,13 +1,86 @@
 #include "Presentation.h"
 
-VOID ProcessRead(HWND hWnd, CHAR szReadBuf[], DWORD dwBytesRead) {
+VOID Read(HWND hWnd, CHAR szReadBuf, DWORD dwBytesRead) {
     
+    CHAR a[2] = {0};
     HDC hdc;
     static int x = 0;
 
+    a[0] = szReadBuf;
+
     hdc = GetDC(hWnd);
-    TextOut(hdc, x, 0, (LPCWSTR) szReadBuf, dwBytesRead);
+    TextOut(hdc, x, 0, (LPCWSTR) a, 1);
     x+=10;
+}
+
+
+BOOL ProcessRead(HWND hWnd, CHAR szReadBuf[], DWORD dwBytesRead) {
+
+    CHAR        szEscBuffer[BUFSIZE]    = {0};
+    BOOL        bEscape                 = FALSE;
+    static BOOL bIncomplete             = FALSE;
+    size_t      i                       = 0;
+
+    if (bIncomplete) {
+        bIncomplete = ProcessEsc(hWnd, szReadBuf);
+        return bIncomplete;
+    }
+    for (i = 0; i < dwBytesRead && !bEscape; i++) {
+        switch (szReadBuf[i]) {
+            case '\033':
+                bEscape = TRUE;
+                break;
+            default:
+                // text out
+                Read(hWnd, szReadBuf[i], 1);
+        }
+    }
+    if (bEscape) {
+        LTrimCopy(szEscBuffer, szReadBuf, i, dwBytesRead);
+        bIncomplete = ProcessEsc(hWnd, szEscBuffer);
+    }
+    return bIncomplete;
+}
+
+
+VOID LTrimCopy(CHAR szDest[], const CHAR szSrc[], 
+               size_t pos, DWORD dwBytesRead) {
+	size_t j;
+	for (j = 0; szSrc[pos] != '\0'; j++) {
+		szDest[j] = szSrc[j + pos];
+	}
+	szDest[j] = '\0';
+}
+
+
+BOOL ProcessEsc(HWND hWnd, CHAR szBuffer[]) {
+    int i = 0;
+    char rest[BUFSIZE];
+    static char incomplete[BUFSIZE];
+    
+    if (strcmp(incomplete,"\0") != 0) {
+        strcat(incomplete, szBuffer);
+        strcpy(szBuffer, incomplete);
+        incomplete[i] = '\0';
+    }
+    
+    for (i = 0; szBuffer[i] != '\0'; i++) {
+        switch (szBuffer[i]) {
+            /*invalid sequence*/
+            case '\033':
+                LTrimCopy(rest, szBuffer, i + 1);
+                return ProcessRead(hWnd, rest, strlen(rest));
+            /*valid sequence*/
+            case 'm':
+                strncpy(rest, szBuffer, i + 1);
+                rest[i+1] = '\0';
+                DISPLAY_ERROR("ESC WORKED");
+                LTrimCopy(rest, szBuffer, i + 1);
+                return ProcessRead(hWnd, rest, strlen(rest));
+        }
+    }
+    strcpy(incomplete, szBuffer);
+    return TRUE;
 }
 
 /*------------------------------------------------------------------------------
