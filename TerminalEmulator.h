@@ -53,6 +53,8 @@ typedef struct wndData {
     HANDLE          hThread;
     DWORD           dwThreadid;
     COMMTIMEOUTS    defaultTimeOuts;
+    CHAR*           psIncompleteEsc;
+    DWORD           dwIncompleteLength;
     TEXTINFO        textInfo;
 } WNDDATA, *PWNDDATA;
 

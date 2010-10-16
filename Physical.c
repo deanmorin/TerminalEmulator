@@ -55,16 +55,16 @@
 --              at the port by that time. This function uses overlapped I/O.
 ------------------------------------------------------------------------------*/
 DWORD WINAPI ReadThreadProc(HWND hWnd) {
- 
+
     PWNDDATA        pwd             = NULL;
-    CHAR            szReadBuf[1000]  = {0};
+    CHAR            psReadBuf[1000]  = {0};
     OVERLAPPED      overlap         = {0};
     DWORD           dwBytesRead     = 0;
     DWORD           dwEvent         = 0;
     DWORD           dwError         = 0;
     COMSTAT         cs              = {0};
-
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
+    
     if ((overlap.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL)) == NULL) {
         DISPLAY_ERROR("Error creating event in read thread");
     }
@@ -80,7 +80,7 @@ DWORD WINAPI ReadThreadProc(HWND hWnd) {
         
         // ensures that there is a character at the port
         if (cs.cbInQue) {                       
-            if (!ReadFile(pwd->hPort, szReadBuf, cs.cbInQue, 
+            if (!ReadFile(pwd->hPort, psReadBuf, cs.cbInQue, 
                           &dwBytesRead, &overlap)) {
                 // read is incomplete or had an error
                 ProcessCommError(pwd->hPort);
@@ -88,7 +88,7 @@ DWORD WINAPI ReadThreadProc(HWND hWnd) {
             }             
             if (dwBytesRead) {
                 // read completed successfully
-                ProcessRead(hWnd, szReadBuf, dwBytesRead);
+                ProcessRead(hWnd, psReadBuf, dwBytesRead);
                 InvalidateRect(hWnd, NULL, FALSE);
             }
         }

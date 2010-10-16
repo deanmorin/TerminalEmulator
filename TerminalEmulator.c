@@ -152,7 +152,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
     TEXTMETRIC      tm              = {0};
     static int      cxClient        = 0;
     static int      cyClient        = 0;
-
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
 
 
@@ -173,7 +172,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
             cc.dcb.DCBlength = sizeof(DCB);
             BuildCommDCB((LPCWSTR)"96,N,8,1", &cc.dcb);
 
-            pwd->bConnected = FALSE;
+            pwd->bConnected         = FALSE;
+            pwd->psIncompleteEsc    = NULL;
 
             return 0;
 
