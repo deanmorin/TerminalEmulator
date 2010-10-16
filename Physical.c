@@ -57,7 +57,7 @@
 DWORD WINAPI ReadThreadProc(HWND hWnd) {
  
     PWNDDATA        pwd             = NULL;
-    CHAR            szReadBuf[100]  = {0};
+    CHAR            szReadBuf[1000]  = {0};
     OVERLAPPED      overlap         = {0};
     DWORD           dwBytesRead     = 0;
     DWORD           dwEvent         = 0;
@@ -75,6 +75,7 @@ DWORD WINAPI ReadThreadProc(HWND hWnd) {
         if (!WaitCommEvent(pwd->hPort, &dwEvent, &overlap)) {
             ProcessCommError(pwd->hPort);
         }
+        WaitForSingleObject(overlap.hEvent, WAIT_TIME);
         ClearCommError(pwd->hPort, &dwError, &cs);
         
         // ensures that there is a character at the port

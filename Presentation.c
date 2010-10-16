@@ -14,72 +14,67 @@ VOID Read(HWND hWnd, CHAR szReadBuf, DWORD dwBytesRead) {
 }
 
 
-BOOL ProcessRead(HWND hWnd, CHAR szReadBuf[], DWORD dwBytesRead) {
+VOID ProcessRead(HWND hWnd, CHAR szReadBuf[], DWORD dwBytesRead) {
 
-    CHAR        szEscBuffer[BUFSIZE]    = {0};
-    BOOL        bEscape                 = FALSE;
-    static BOOL bIncomplete             = FALSE;
-    size_t      i                       = 0;
-
+    CHAR*       szEscBuf        = NULL;
+    static BOOL bIncomplete     = FALSE;
+    
     if (bIncomplete) {
-        bIncomplete = ProcessEsc(hWnd, szReadBuf);
-        return bIncomplete;
+        // the last escape sequence was incomplete
+        bIncomplete = ProcessEsc(hWnd, szReadBuf, dwBytesRead);
+        return;
     }
-    for (i = 0; i < dwBytesRead && !bEscape; i++) {
-        switch (szReadBuf[i]) {
-            case '\033':
-                bEscape = TRUE;
-                break;
+    bIncomplete = ProcessBuffer(hWnd, szReadBuf, dwBytesRead);
+}
+
+//returns true if incomplete
+BOOL ProcessBuffer(HWND hWnd, CHAR szBuffer[], DWORD dwLength) {
+    
+    DWORD   i   = 0;
+
+    // check szReadBuf, character by character
+    for (i = 0; i < dwLength; i++) {
+        switch (szBuffer[i]) {
+            case VK_ESCAPE:
+                return ProcessEsc(hWnd, szBuffer + i, dwLength - i);
             default:
                 // text out
-                Read(hWnd, szReadBuf[i], 1);
+                Read(hWnd, szBuffer[i], 1);
         }
     }
-    if (bEscape) {
-        LTrimCopy(szEscBuffer, szReadBuf, i, dwBytesRead);
-        bIncomplete = ProcessEsc(hWnd, szEscBuffer);
-    }
-    return bIncomplete;
+    return FALSE;
 }
 
-
-VOID LTrimCopy(CHAR szDest[], const CHAR szSrc[], 
-               size_t pos, DWORD dwBytesRead) {
-	size_t j;
-	for (j = 0; szSrc[pos] != '\0'; j++) {
-		szDest[j] = szSrc[j + pos];
-	}
-	szDest[j] = '\0';
-}
-
-
-BOOL ProcessEsc(HWND hWnd, CHAR szBuffer[]) {
-    int i = 0;
-    char rest[BUFSIZE];
-    static char incomplete[BUFSIZE];
+//returns true if incomplete
+BOOL ProcessEsc(HWND hWnd, CHAR* szBuffer, DWORD length) {
     
-    if (strcmp(incomplete,"\0") != 0) {
-        strcat(incomplete, szBuffer);
-        strcpy(szBuffer, incomplete);
-        incomplete[i] = '\0';
+    static CHAR     szIncomplete[4096]  = {0};
+    static BOOL     bIncomplete         = FALSE;
+    DWORD           i                   = 0;
+
+    if (bIncomplete) {
+        strcat(szIncomplete, szBuffer);
+        szBuffer = szIncomplete; //overflow?
+        length = strlen(szBuffer);
+        bIncomplete = FALSE;
     }
     
-    for (i = 0; szBuffer[i] != '\0'; i++) {
+    
+    for (i = 1; i < length; i++) {
         switch (szBuffer[i]) {
-            /*invalid sequence*/
-            case '\033':
-                LTrimCopy(rest, szBuffer, i + 1);
-                return ProcessRead(hWnd, rest, strlen(rest));
-            /*valid sequence*/
+        // invalid sequence
+            case VK_ESCAPE:
+                return ProcessBuffer(hWnd, szBuffer + i, length - i);
+            // valid sequence
             case 'm':
-                strncpy(rest, szBuffer, i + 1);
-                rest[i+1] = '\0';
-                DISPLAY_ERROR("ESC WORKED");
-                LTrimCopy(rest, szBuffer, i + 1);
-                return ProcessRead(hWnd, rest, strlen(rest));
+                DISPLAY_ERROR("ESC WORKED?");
+                if (i == length) {
+                    return FALSE;
+                }
+                return ProcessBuffer(hWnd, szBuffer + i + 1, length - i - 1);
         }
     }
-    strcpy(incomplete, szBuffer);
+    strcpy(szIncomplete, szBuffer);
     return TRUE;
 }
 
