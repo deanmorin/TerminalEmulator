@@ -198,7 +198,8 @@ VOID FormFeed(HWND hWnd) {
     for (i = 0; i < LINES_PER_SCRN; i++) {
         for (j = 0; j < CHARS_PER_LINE; j++) {
             CHARACTER(j, i).character   = ' ';
-            CHARACTER(j, i).color       = 0;
+            CHARACTER(j, i).fgColor     = 0;
+            CHARACTER(j, i).bgColor     = 0;
             CHARACTER(j, i).style       = 0;
          }
     }
@@ -210,4 +211,12 @@ VOID CarraigeReturn(HWND hWnd) {
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);    
     X = 0;
     SetCaretPos(X, Y);
+}
+
+VOID MoveCursor(HWND hWnd, DWORD cxCoord, DWORD cyCoord) {
+    PWNDDATA pwd = NULL;
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
+    X = cxCoord - 1;
+    Y = cyCoord - 1;
+    SetCaretPos(X_POS, Y_POS);
 }

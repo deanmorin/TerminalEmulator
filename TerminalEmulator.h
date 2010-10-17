@@ -38,7 +38,8 @@
 /*-------------------------------Structures-----------------------------------*/
 typedef struct charInfo {
     CHAR    character;
-    BYTE    color;
+    BYTE    fgColor;
+    BYTE    bgColor;
     BYTE    style;
 } CHARINFO;
 

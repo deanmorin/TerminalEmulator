@@ -73,7 +73,8 @@ VOID InitTerminal(HWND hWnd) {
         pwd->displayBuf.rows[i] = (PLINE) malloc(sizeof(LINE));
         for (j = 0; j < CHARS_PER_LINE; j++) {
             CHARACTER(j, i).character   = ' ';
-            CHARACTER(j, i).color       = 0;
+            CHARACTER(j, i).fgColor     = 0;
+            CHARACTER(j, i).bgColor     = 0;
             CHARACTER(j, i).style       = 0;
         }
     }
@@ -106,9 +107,7 @@ VOID PerformMenuAction(HWND hWnd, UINT message, WPARAM wParam) {
     switch (LOWORD(wParam)) {
                 
         case IDM_CONNECT:       
-            if (!Connect(hWnd)) {
-                Disconnect(hWnd);
-            }
+            Connect(hWnd);
             return;
 
         case IDM_DISCONNECT:
@@ -140,10 +139,32 @@ VOID PerformMenuAction(HWND hWnd, UINT message, WPARAM wParam) {
     }
 }
 
-VOID MoveCursor(HWND hWnd, DWORD cxCoord, DWORD cyCoord) {
-    PWNDDATA pwd = NULL;
+
+VOID Paint(HWND hWnd) {
+    
+    PWNDDATA        pwd     = NULL;
+    CHAR            a[2]    = {0};
+    HDC             hdc     = {0};
+    PAINTSTRUCT     ps      = {0};
+    UINT            i       = 0;
+    UINT            j       = 0;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
-    X = cxCoord - 1;
-    Y = cyCoord - 1;
-    SetCaretPos(X_POS, Y_POS);
+
+    hdc = BeginPaint(hWnd, &ps) ;
+    SelectObject(hdc, GetStockObject(OEM_FIXED_FONT));
+                             
+    for (i = 0; i < LINES_PER_SCRN; i++) {
+        for (j = 0; j < CHARS_PER_LINE; j++) {
+            SetColorAndStyle(CHARACTER(j, i).fgColor,
+                             CHARACTER(j, i).bgColor,
+                             CHARACTER(j, i).style);
+            a[0] = CHARACTER(j, i).character;
+            TextOut(hdc, CHAR_WIDTH * j + PADDING, CHAR_HEIGHT * i + PADDING,
+                    (LPCWSTR) a, 1);
+        }
+    }
+    EndPaint(hWnd, &ps);
+}
+
+VOID SetColorAndStyle(BYTE fgColor, BYTE bgColor, BYTE style) {
 }

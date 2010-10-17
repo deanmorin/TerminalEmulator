@@ -16,5 +16,6 @@ VOID    LineFeed(HWND hWnd);
 VOID    VerticalTab(HWND hWnd);
 VOID    FormFeed(HWND hWnd);
 VOID    CarraigeReturn(HWND hWnd);
+VOID    MoveCursor(HWND hWnd, DWORD cxCoord, DWORD cyCoord);
 
 #endif

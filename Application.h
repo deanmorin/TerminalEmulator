@@ -4,7 +4,8 @@
 #include "TerminalEmulator.h"
 
 VOID    InitTerminal(HWND hWnd);
+VOID    Paint(HWND hWnd);
 VOID    PerformMenuAction(HWND hWnd, UINT message, WPARAM wParam);
-VOID    MoveCursor(HWND hWnd, DWORD cxCoord, DWORD cyCoord);
+VOID    SetColorAndStyle(BYTE fgColor, BYTE bgColor, BYTE style);
 
 #endif

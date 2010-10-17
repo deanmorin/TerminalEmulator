@@ -142,18 +142,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 --              Application.c. Currently, WM_PAINT will update the screen with
 --              black text only.
 ------------------------------------------------------------------------------*/
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, 
-                         WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
                              
-    PWNDDATA        pwd         = {0};
-    HDC             hdc         = {0};
-    PAINTSTRUCT     ps          = {0};
-    UINT            i           = 0;
-    UINT            j           = 0;
-    LINE            line        = {0};
-    CHAR            a[2]        = {0};
+    PWNDDATA pwd = {0};
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
-
 
     switch (message) {
 
@@ -162,19 +154,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
             return 0;
                      
         case WM_PAINT:
-            
-            hdc = BeginPaint(hWnd, &ps) ;
-            SelectObject(hdc, GetStockObject(OEM_FIXED_FONT));
-                             
-            for (i = 0; i < LINES_PER_SCRN; i++) {
-                for (j = 0; j < CHARS_PER_LINE; j++) {
-                    a[0] = CHARACTER(j, i).character;
-                    TextOut(hdc, 
-                            CHAR_WIDTH * j + PADDING, CHAR_HEIGHT * i + PADDING,
-                            (LPCWSTR) a, 1);
-                }
-            }
-            EndPaint(hWnd, &ps);
+            Paint(hWnd);
             return 0;
 
         case WM_SETFOCUS:
