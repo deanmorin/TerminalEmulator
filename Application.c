@@ -30,6 +30,55 @@
 #include "Application.h"
 
 
+VOID InitTerminal(HWND hWnd) {
+
+    PWNDDATA    pwd = {0};
+    HDC         hdc = {0};
+    COMMCONFIG  cc  = {0};
+    TEXTMETRIC  tm  = {0};
+    PAINTSTRUCT ps  = {0};
+    UINT        i   = 0;
+    UINT        j   = 0;
+
+
+    if ((pwd = (PWNDDATA) malloc(sizeof(WNDDATA))) == 0) {
+        DISPLAY_ERROR("Error allocating memory for WNDDATA structure");
+    }
+    pwd->lpszCommName   = TEXT("COM3");
+    pwd->hPort          = NULL;
+    SetWindowLongPtr(hWnd, 0, (LONG_PTR) pwd);
+
+    cc.dwSize = sizeof(COMMCONFIG);
+    GetCommConfig(pwd->hPort, &cc, &cc.dwSize);
+    FillMemory(&cc.dcb, sizeof(DCB), 0);
+    cc.dcb.DCBlength = sizeof(DCB);
+    BuildCommDCB((LPCWSTR)"96,N,8,1", &cc.dcb);
+
+    pwd->bConnected         = FALSE;
+    pwd->psIncompleteEsc    = NULL;
+
+    hdc = GetDC(hWnd);
+    SelectObject(hdc, GetStockObject(OEM_FIXED_FONT));
+    GetTextMetrics(hdc, &tm);
+    pwd->displayBuf.cxChar = tm.tmAveCharWidth;
+    pwd->displayBuf.cyChar = tm.tmHeight;
+    ReleaseDC(hWnd, hdc);
+
+    X = 0;
+    Y = 0;
+    CreateCaret(hWnd, NULL, PADDING, PADDING);
+    ShowCaret(hWnd);
+
+    for (i = 0; i < LINES_PER_SCRN; i++) {
+        pwd->displayBuf.rows[i] = (PLINE) malloc(sizeof(LINE));
+        for (j = 0; j < CHARS_PER_LINE; j++) {
+            CHARACTER(j, i).character   = ' ';
+            CHARACTER(j, i).color       = 0;
+            CHARACTER(j, i).style       = 0;
+        }
+    }
+}
+
 /*------------------------------------------------------------------------------
 -- FUNCTION:    PerformMenuAction
 --
@@ -132,7 +181,5 @@ VOID SelectPort(HWND hWnd, INT selected) {
         case IDM_COM7:  pwd->lpszCommName = TEXT("COM7");   return;        
         case IDM_COM8:  pwd->lpszCommName = TEXT("COM8");   return;        
         case IDM_COM9:  pwd->lpszCommName = TEXT("COM9");   return;
-        
-        default:    return;
     }
 }

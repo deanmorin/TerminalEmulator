@@ -4,6 +4,8 @@
 #include "TerminalEmulator.h"
 #include <string.h>
 
+#define TAB_LENGTH 8
+
 VOID    ProcessEsc(HWND hWnd, CHAR* psBuffer, DWORD dwBytesRead);
 VOID    ProcessRead(HWND hWnd, CHAR psReadBuf[], DWORD dwBytesRead);
 VOID    ProcessSpecialChar(HWND hWnd, CHAR cSpChar);

@@ -150,23 +150,26 @@ VOID UpdateDisplayBuf(HWND hWnd, CHAR cCharacter) {
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
 
     a[0] = cCharacter;
-    
-    hdc = GetDC(hWnd);
-    SelectObject(hdc, pwd->displayBuf.hFont);
+    /*
+    hdc = GetDC(hWnd);  
+    SelectObject(hdc, GetStockObject(OEM_FIXED_FONT));
     TextOut(hdc, 
             X_POS + PADDING, 
             Y_POS + PADDING, 
             (LPCWSTR) a, 1);
-
+    */
+           
     SET_BUFFER(cCharacter, X, Y);
-
-    if (X >= CHARS_PER_LINE) {     // needs another check
+    if (X >= CHARS_PER_LINE - 1) { 
         X = 0;
-        Y++;
+        if (Y < LINES_PER_SCRN - 1) { 
+            Y++;
+        }
     } else {
         X++;
     }
     SetCaretPos(X_POS + PADDING, Y_POS + PADDING); 
+    ReleaseDC(hWnd, hdc);
 }
 
 
@@ -176,24 +179,64 @@ VOID Bell(HWND hWnd) {
 
 
 VOID BackSpace(HWND hWnd) {
+    PWNDDATA pwd = NULL;
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
+    X--;
 }
 
 
 VOID HorizontalTab(HWND hWnd) {
+    PWNDDATA pwd = NULL;
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);   
+    if (X < CHARS_PER_LINE - TAB_LENGTH) {
+        X += TAB_LENGTH - X % TAB_LENGTH;
+    } else {
+        X = CHARS_PER_LINE - 1;
+    }
 }
 
 
-VOID LineFeed(HWND hWnd) {
+VOID LineFeed(HWND hWnd) {   
+    PWNDDATA pwd = NULL;
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);    
+    X = 0;
+    if (Y < LINES_PER_SCRN - 1) {   // change to scroll
+        Y++;
+    }
+    SetCaretPos(X, Y);
 }
 
 
-VOID VerticalTab(HWND hWnd) {    
+VOID VerticalTab(HWND hWnd) { 
+    PWNDDATA pwd = NULL;
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);    
+    if (Y < LINES_PER_SCRN - 1) {   // change to scroll
+        Y++;
+    }
+    SetCaretPos(X, Y);
 }
 
-
+// same as esc[j
 VOID FormFeed(HWND hWnd) {
+    
+    PWNDDATA    pwd = NULL;
+    UINT        i   = 0;
+    UINT        j   = 0;
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
+
+    for (i = 0; i < LINES_PER_SCRN; i++) {
+        for (j = 0; j < CHARS_PER_LINE; j++) {
+            CHARACTER(j, i).character   = ' ';
+            CHARACTER(j, i).color       = 0;
+            CHARACTER(j, i).style       = 0;
+         }
+    }
 }
 
 
 VOID CarraigeReturn(HWND hWnd) {
+    PWNDDATA pwd = NULL;
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);    
+    X = 0;
+    SetCaretPos(X, Y);
 }

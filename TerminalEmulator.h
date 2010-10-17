@@ -49,7 +49,6 @@ typedef struct line {
 
 typedef struct displayBuf {
     PLINE   rows[LINES_PER_SCRN];
-    HFONT   hFont;
     UINT    cxChar;
     UINT    cyChar;
     UINT    cxCursor;

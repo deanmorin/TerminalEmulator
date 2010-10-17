@@ -147,11 +147,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
                              
     PWNDDATA        pwd         = {0};
     HDC             hdc         = {0};
-    COMMCONFIG      cc          = {0};
     PAINTSTRUCT     ps          = {0};
-    TEXTMETRIC      tm          = {0};
-    static UINT     cxClient    = 0;
-    static UINT     cyClient    = 0;
     UINT            i           = 0;
     UINT            j           = 0;
     LINE            line        = {0};
@@ -162,66 +158,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
     switch (message) {
 
         case WM_CREATE:
-                
-            if ((pwd = (PWNDDATA) malloc(sizeof(WNDDATA))) == 0) {
-                DISPLAY_ERROR("Error allocating memory for WNDDATA structure");
-            }
-            pwd->lpszCommName   = TEXT("COM3");
-            pwd->hPort          = NULL;
-            SetWindowLongPtr(hWnd, 0, (LONG_PTR) pwd);
-
-            cc.dwSize = sizeof(COMMCONFIG);
-            GetCommConfig(pwd->hPort, &cc, &cc.dwSize);
-            FillMemory(&cc.dcb, sizeof(DCB), 0);
-            cc.dcb.DCBlength = sizeof(DCB);
-            BuildCommDCB((LPCWSTR)"96,N,8,1", &cc.dcb);
-
-            pwd->bConnected         = FALSE;
-            pwd->psIncompleteEsc    = NULL;
-
-            pwd->displayBuf.hFont = CreateFont (0, 0, 0, 0, 0, 0, 0, 0,
-                                                DEFAULT_CHARSET, 0, 0, 0, 
-                                                FIXED_PITCH, NULL);
-            hdc = GetDC(hWnd);
-            SelectObject(hdc, pwd->displayBuf.hFont);
-            /////SelectObject(hdc, GetStockObject(OEM_FIXED_FONT));
-            GetTextMetrics(hdc, &tm);
-            pwd->displayBuf.cxChar = tm.tmAveCharWidth;
-            pwd->displayBuf.cyChar = tm.tmHeight;
-            ReleaseDC(hWnd, hdc);
-            DeleteObject(SelectObject(hdc, GetStockObject(SYSTEM_FONT)));
-            X = 0;
-            Y = 0;
-            CreateCaret(hWnd, NULL, PADDING, PADDING);
-            ShowCaret(hWnd);
-
-            for (i = 0; i < LINES_PER_SCRN; i++) {
-                pwd->displayBuf.rows[i] = malloc(sizeof(LINE));
-                for (j = 0; j < CHARS_PER_LINE; j++) {
-                    CHARACTER(j, i).character   = ' ';
-                    CHARACTER(j, i).color       = 0;
-                    CHARACTER(j, i).style       = 0;
-                }
-            }
+            InitTerminal(hWnd);   
             return 0;
-
-
-        case WM_SIZE:
-
-            hdc = GetDC(hWnd);
-            GetTextMetrics(hdc, &tm);
-
-            cxClient        = LOWORD(lParam);
-            cyClient        = HIWORD(lParam);
-
-            ReleaseDC(hWnd, hdc);
-            
-            
+                     
         case WM_PAINT:
             
             hdc = BeginPaint(hWnd, &ps) ;
             SelectObject(hdc, GetStockObject(OEM_FIXED_FONT));
-                              
+                             
             for (i = 0; i < LINES_PER_SCRN; i++) {
                 for (j = 0; j < CHARS_PER_LINE; j++) {
                     a[0] = CHARACTER(j, i).character;
@@ -232,7 +176,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
             }
             EndPaint(hWnd, &ps);
             return 0;
-
 
         case WM_SETFOCUS:
             CreateCaret(hWnd, NULL, CHAR_WIDTH, CHAR_HEIGHT);
@@ -258,7 +201,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
             }
             return 0;
 
-
         case WM_CHAR:
             if (pwd->bConnected) {
                 if (!ProcessWrite(hWnd, wParam, FALSE)) {
@@ -267,17 +209,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
             }
             return 0;
 
-
         case WM_COMMAND:
             PerformMenuAction(hWnd, message, wParam);
             return 0;
-
 
         case WM_DESTROY:
             Disconnect(hWnd);
             PostQuitMessage(0);
             return 0;
-
 
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
