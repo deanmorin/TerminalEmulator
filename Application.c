@@ -140,46 +140,10 @@ VOID PerformMenuAction(HWND hWnd, UINT message, WPARAM wParam) {
     }
 }
 
-/*------------------------------------------------------------------------------
--- FUNCTION:    SelectPort
---
--- DATE:        Oct 03, 2010
---
--- REVISIONS:   (Date and Description)
---
--- DESIGNER:    Dean Morin
---
--- PROGRAMMER:  Dean Morin
---
--- INTERFACE:   VOID SelectPort(HWND, INT)
---
--- RETURNS:     VOID.
---
--- NOTES:
---              Selects a new port. It changes the menu checkmark to the new
---              port, and it changes the actual port by renaming lpszCommName.
-                The INT argument is the menu item that was selected.
-------------------------------------------------------------------------------*/
-VOID SelectPort(HWND hWnd, INT selected) {
-    
-    PWNDDATA pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
-
-    INT prevPortNo = pwd->lpszCommName[3];
-    CheckMenuItem(GetMenu(hWnd),
-                 (IDM_COM1 - 1) + (prevPortNo - ASCII_DIGIT_OFFSET),
-                 MF_UNCHECKED);
-    CheckMenuItem(GetMenu(hWnd), selected, MF_CHECKED);
-
-    switch (selected) {
-
-        case IDM_COM1:  pwd->lpszCommName = TEXT("COM1");   return;
-        case IDM_COM2:  pwd->lpszCommName = TEXT("COM2");   return;       
-        case IDM_COM3:  pwd->lpszCommName = TEXT("COM3");   return;       
-        case IDM_COM4:  pwd->lpszCommName = TEXT("COM4");   return;        
-        case IDM_COM5:  pwd->lpszCommName = TEXT("COM5");   return;        
-        case IDM_COM6:  pwd->lpszCommName = TEXT("COM6");   return;        
-        case IDM_COM7:  pwd->lpszCommName = TEXT("COM7");   return;        
-        case IDM_COM8:  pwd->lpszCommName = TEXT("COM8");   return;        
-        case IDM_COM9:  pwd->lpszCommName = TEXT("COM9");   return;
-    }
+VOID MoveCursor(HWND hWnd, DWORD cxCoord, DWORD cyCoord) {
+    PWNDDATA pwd = NULL;
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
+    X = cxCoord - 1;
+    Y = cyCoord - 1;
+    SetCaretPos(X_POS, Y_POS);
 }

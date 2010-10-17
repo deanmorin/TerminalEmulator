@@ -65,7 +65,7 @@ typedef struct wndData {
     CHAR*           psIncompleteEsc;
     DWORD           dwIncompleteLength;
     DISPLAYBUF      displayBuf;
-    //UINT            
+    DWORD           dwEscSeqValues[32];            
 } WNDDATA, *PWNDDATA;
 
 /*---------------------------Function Prototyes-------------------------------*/
