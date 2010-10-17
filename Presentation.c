@@ -1,76 +1,5 @@
 #include "Presentation.h"
 
-VOID Read(HWND hWnd, CHAR psReadBuf, DWORD dwBytesRead) {
-    
-    CHAR a[2] = {0};
-    HDC hdc;
-    static int x = 0;
-
-    a[0] = psReadBuf;
-
-    hdc = GetDC(hWnd);
-    TextOut(hdc, x, 0, (LPCWSTR) a, 1);
-    x+=10;
-}
-
-
-VOID ProcessRead(HWND hWnd, CHAR* psReadBuf, DWORD dwBytesRead) {
-
-    PWNDDATA    pwd                 = NULL;
-    CHAR*       psCombined          = NULL;
-    DWORD       dwCombinedLength    = 0;
-    DWORD       i                   = 0;
-    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
-    
-    if (pwd->psIncompleteEsc) {
-        // the last escape sequence was incomplete, but still could be valid
-        dwCombinedLength    = pwd->dwIncompleteLength + dwBytesRead;
-        psCombined          = (CHAR*) malloc(sizeof(CHAR) * dwCombinedLength);
-        *psCombined         = *pwd->psIncompleteEsc;
-        *(psCombined + pwd->dwIncompleteLength) = *psReadBuf;
-        pwd->psIncompleteEsc = NULL;
-        ProcessEsc(hWnd, psCombined, dwCombinedLength);
-        return;
-    }
-    for (i = 0; i < dwBytesRead; i++) {
-        switch (psReadBuf[i]) {
-            case VK_ESCAPE:
-                ProcessEsc(hWnd, psReadBuf + i, dwBytesRead - i);
-                return;
-            default:
-                // text out
-                Read(hWnd, psReadBuf[i], 1);
-        }
-    }
-}
-
-
-VOID ProcessEsc(HWND hWnd, CHAR* psBuffer, DWORD length) {
-    
-    PWNDDATA    pwd = NULL;
-    DWORD       i   = 0;  
-    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
-    
-    for (i = 1; i < length; i++) {
-        switch (psBuffer[i]) {
-            // invalid sequence
-            case VK_ESCAPE:
-                ProcessEsc(hWnd, psBuffer + i, length - i);
-                return;
-            // valid sequence
-            case 'm':
-                DISPLAY_ERROR("ESC WORKED?");
-                if (i == length - 1) {
-                    return;
-                }
-                ProcessRead(hWnd, psBuffer + i + 1, length - i - 1);
-                return;
-        }
-    }
-    pwd->psIncompleteEsc    = psBuffer;
-    pwd->dwIncompleteLength = length;
-}
-
 /*------------------------------------------------------------------------------
 -- FUNCTION:    ProcessWrite
 --
@@ -133,4 +62,138 @@ BOOL ProcessWrite(HWND hWnd, WPARAM wParam, BOOL bNonCharKey) {
         }
     }
     return TRUE;
+}
+
+
+VOID ProcessRead(HWND hWnd, CHAR* psReadBuf, DWORD dwBytesRead) {
+
+    PWNDDATA    pwd                 = NULL;
+    CHAR*       psCombined          = NULL;
+    DWORD       dwCombinedLength    = 0;
+    DWORD       i                   = 0;
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
+    
+    if (pwd->psIncompleteEsc) {
+        // the last escape sequence was incomplete, but still could be valid
+        dwCombinedLength    = pwd->dwIncompleteLength + dwBytesRead;
+        psCombined          = (CHAR*) malloc(sizeof(CHAR) * dwCombinedLength);
+        *psCombined         = *pwd->psIncompleteEsc;
+        *(psCombined + pwd->dwIncompleteLength) = *psReadBuf;
+        pwd->psIncompleteEsc = NULL;
+        ProcessEsc(hWnd, psCombined, dwCombinedLength);
+        return;
+    }
+    for (i = 0; i < dwBytesRead; i++) {
+        if (psReadBuf[i] == VK_ESCAPE) {
+            ProcessEsc(hWnd, psReadBuf + i, dwBytesRead - i);
+            return;
+        }
+        if (psReadBuf[i] >= VK_SPACE  &&  psReadBuf[i] <= '~') {
+            UpdateDisplayBuf(hWnd, psReadBuf[i]);
+        } else {
+            ProcessSpecialChar(hWnd, psReadBuf[i]);
+        }
+    }
+}
+
+
+VOID ProcessEsc(HWND hWnd, CHAR* psBuffer, DWORD length) {
+    
+    PWNDDATA    pwd = NULL;
+    DWORD       i   = 0;  
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
+    
+    for (i = 1; i < length; i++) {
+        switch (psBuffer[i]) {
+            // invalid sequence
+            case VK_ESCAPE:
+                ProcessEsc(hWnd, psBuffer + i, length - i);
+                return;
+            // valid sequence
+            case 'm':
+                DISPLAY_ERROR("m");
+                if (i == length - 1) {
+                    return;
+                }
+                ProcessRead(hWnd, psBuffer + i + 1, length - i - 1);
+                return;
+            default:
+                break;
+        }
+    }
+    pwd->psIncompleteEsc    = psBuffer;
+    pwd->dwIncompleteLength = length;
+}
+
+
+VOID ProcessSpecialChar(HWND hWnd, CHAR cSpChar) {
+    
+    switch (cSpChar) {
+        case 0x07:  Bell(hWnd);             break;
+        case 0x08:  BackSpace(hWnd);        break;
+        case 0x09:  HorizontalTab(hWnd);    break;
+        case 0x0A:  LineFeed(hWnd);         break;
+        case 0x0B:  VerticalTab(hWnd);      break;
+        case 0x0C:  FormFeed(hWnd);         break;
+        case 0x0D:  CarraigeReturn(hWnd);   break;
+        default:                            break;  // ignore character
+    }
+}
+
+
+VOID UpdateDisplayBuf(HWND hWnd, CHAR cCharacter) {
+    
+    PWNDDATA    pwd     = NULL;
+    CHAR        a[2]    = {0};    
+    HDC         hdc     = {0};
+    CHARINFO    ci      = {0};
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
+
+    a[0] = cCharacter;
+    
+    hdc = GetDC(hWnd);
+    SelectObject(hdc, pwd->displayBuf.hFont);
+    TextOut(hdc, 
+            X_POS + PADDING, 
+            Y_POS + PADDING, 
+            (LPCWSTR) a, 1);
+
+    SET_BUFFER(cCharacter, X, Y);
+
+    if (X >= CHARS_PER_LINE) {     // needs another check
+        X = 0;
+        Y++;
+    } else {
+        X++;
+    }
+    SetCaretPos(X_POS + PADDING, Y_POS + PADDING); 
+}
+
+
+VOID Bell(HWND hWnd) {
+    // this function does nothing on grounds of good taste
+}
+
+
+VOID BackSpace(HWND hWnd) {
+}
+
+
+VOID HorizontalTab(HWND hWnd) {
+}
+
+
+VOID LineFeed(HWND hWnd) {
+}
+
+
+VOID VerticalTab(HWND hWnd) {    
+}
+
+
+VOID FormFeed(HWND hWnd) {
+}
+
+
+VOID CarraigeReturn(HWND hWnd) {
 }

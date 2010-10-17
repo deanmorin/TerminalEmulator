@@ -145,13 +145,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, 
                          WPARAM wParam, LPARAM lParam) {
                              
-    PWNDDATA        pwd             = {0};
-    HDC             hdc             = {0};
-    COMMCONFIG      cc              = {0};
-    PAINTSTRUCT     ps              = {0};
-    TEXTMETRIC      tm              = {0};
-    static int      cxClient        = 0;
-    static int      cyClient        = 0;
+    PWNDDATA        pwd         = {0};
+    HDC             hdc         = {0};
+    COMMCONFIG      cc          = {0};
+    PAINTSTRUCT     ps          = {0};
+    TEXTMETRIC      tm          = {0};
+    static UINT     cxClient    = 0;
+    static UINT     cyClient    = 0;
+    UINT            i           = 0;
+    UINT            j           = 0;
+    LINE            line        = {0};
+    CHAR            a[2]        = {0};
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
 
 
@@ -175,6 +179,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
             pwd->bConnected         = FALSE;
             pwd->psIncompleteEsc    = NULL;
 
+            pwd->displayBuf.hFont = CreateFont (0, 0, 0, 0, 0, 0, 0, 0,
+                                                DEFAULT_CHARSET, 0, 0, 0, 
+                                                FIXED_PITCH, NULL);
+            hdc = GetDC(hWnd);
+            SelectObject(hdc, pwd->displayBuf.hFont);
+            /////SelectObject(hdc, GetStockObject(OEM_FIXED_FONT));
+            GetTextMetrics(hdc, &tm);
+            pwd->displayBuf.cxChar = tm.tmAveCharWidth;
+            pwd->displayBuf.cyChar = tm.tmHeight;
+            ReleaseDC(hWnd, hdc);
+            DeleteObject(SelectObject(hdc, GetStockObject(SYSTEM_FONT)));
+            X = 0;
+            Y = 0;
+            CreateCaret(hWnd, NULL, PADDING, PADDING);
+            ShowCaret(hWnd);
+
+            for (i = 0; i < LINES_PER_SCRN; i++) {
+                pwd->displayBuf.rows[i] = malloc(sizeof(LINE));
+                for (j = 0; j < CHARS_PER_LINE; j++) {
+                    CHARACTER(j, i).character   = ' ';
+                    CHARACTER(j, i).color       = 0;
+                    CHARACTER(j, i).style       = 0;
+                }
+            }
             return 0;
 
 
@@ -188,10 +216,34 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 
             ReleaseDC(hWnd, hdc);
             
-            /*
+            
         case WM_PAINT:
+            
+            hdc = BeginPaint(hWnd, &ps) ;
+            SelectObject(hdc, GetStockObject(OEM_FIXED_FONT));
+                              
+            for (i = 0; i < LINES_PER_SCRN; i++) {
+                for (j = 0; j < CHARS_PER_LINE; j++) {
+                    a[0] = CHARACTER(j, i).character;
+                    TextOut(hdc, 
+                            CHAR_WIDTH * j + PADDING, CHAR_HEIGHT * i + PADDING,
+                            (LPCWSTR) a, 1);
+                }
+            }
+            EndPaint(hWnd, &ps);
             return 0;
-            */
+
+
+        case WM_SETFOCUS:
+            CreateCaret(hWnd, NULL, CHAR_WIDTH, CHAR_HEIGHT);
+            SetCaretPos(X_POS, Y_POS);
+            ShowCaret(hWnd);
+            return 0;
+
+        case WM_KILLFOCUS:
+            HideCaret(hWnd);
+            DestroyCaret();
+            return 0;
 
         case WM_KEYDOWN:
             if (pwd->bConnected) {

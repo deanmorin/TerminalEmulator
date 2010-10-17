@@ -16,35 +16,45 @@
 
 #pragma warning(disable:4002)
 
-/*--------------------Constants Used in Calculations--------------------------*/
-#define ASCII_DIGIT_OFFSET  48      // The ascii value for '0'
+/*--------------------------------Macros--------------------------------------*/
+#define ASCII_DIGIT_OFFSET  48      // the ascii value for '0'
+#define PADDING             5      // the distance between the edge of the
+                                    // client area, and any text
+#define NO_OF_PORTS         9       // the number of ports available from the
+                                    // "Select Ports" dropdown
+#define CHARS_PER_LINE      80      // characters per line
+#define LINES_PER_SCRN      24      // lines per screen
 
 #define DISPLAY_ERROR(x)    MessageBox(NULL, TEXT(x), TEXT(""), MB_OK)
+#define X                   pwd->displayBuf.cxCursor
+#define Y                   pwd->displayBuf.cyCursor
+#define X_POS               pwd->displayBuf.cxCursor * pwd->displayBuf.cxChar + PADDING
+#define Y_POS               pwd->displayBuf.cyCursor * pwd->displayBuf.cyChar + PADDING
+#define CHAR_WIDTH          pwd->displayBuf.cxChar
+#define CHAR_HEIGHT         pwd->displayBuf.cyChar
+#define CHARACTER(X, Y)     pwd->displayBuf.rows[Y]->columns[X]
+#define SET_BUFFER(C, X, Y) pwd->displayBuf.rows[Y]->columns[X].character = C;
 
 /*-------------------------------Structures-----------------------------------*/
-typedef struct tCharNode tCharNode;
-typedef struct tCharNode {
-    TCHAR       data;
-    tCharNode   *next;
-} *PTCHARNODE;
+typedef struct charInfo {
+    CHAR    character;
+    BYTE    color;
+    BYTE    style;
+} CHARINFO;
 
+typedef struct line line;
+typedef struct line {
+    CHARINFO    columns[CHARS_PER_LINE];
+} LINE, *PLINE;
 
-typedef struct colorNode colorNode;
-typedef struct colorNode {
-    COLORREF    color;
-    UINT        count;
-    colorNode   *next;
-} *PCOLORNODE;
-
-typedef struct textInfo {
-    UINT        uMinStrLength;
-    PTCHARNODE  ptCharHead;
-    PTCHARNODE  ptCharTail;
-    LONG        cxPos;
-    LONG        cyPos;
-    PCOLORNODE  pColorHead;
-    PCOLORNODE  pColorTail;
-} TEXTINFO;
+typedef struct displayBuf {
+    PLINE   rows[LINES_PER_SCRN];
+    HFONT   hFont;
+    UINT    cxChar;
+    UINT    cyChar;
+    UINT    cxCursor;
+    UINT    cyCursor;
+} DISPLAYBUF;
 
 typedef struct wndData {
     HANDLE          hPort;
@@ -55,7 +65,7 @@ typedef struct wndData {
     COMMTIMEOUTS    defaultTimeOuts;
     CHAR*           psIncompleteEsc;
     DWORD           dwIncompleteLength;
-    TEXTINFO        textInfo;
+    DISPLAYBUF      displayBuf;
 } WNDDATA, *PWNDDATA;
 
 /*---------------------------Function Prototyes-------------------------------*/

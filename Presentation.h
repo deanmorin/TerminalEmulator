@@ -3,14 +3,18 @@
 
 #include "TerminalEmulator.h"
 #include <string.h>
-#define BUFSIZE 256
 
-VOID    ProcessRead(HWND hWnd, CHAR psReadBuf[], DWORD dwBytesRead);
-BOOL    ProcessWrite(HWND hWnd, WPARAM wParam, BOOL bNonCharKey);
-BOOL    ProcessBuffer(HWND hWnd, CHAR psBuffer[], DWORD dwLength);
 VOID    ProcessEsc(HWND hWnd, CHAR* psBuffer, DWORD dwBytesRead);
-
-VOID Read(HWND hWnd, CHAR psReadBuf, DWORD dwBytesRead);
-VOID Read2(HWND hWnd, CHAR psReadBuf[], DWORD dwBytesRead);
+VOID    ProcessRead(HWND hWnd, CHAR psReadBuf[], DWORD dwBytesRead);
+VOID    ProcessSpecialChar(HWND hWnd, CHAR cSpChar);
+BOOL    ProcessWrite(HWND hWnd, WPARAM wParam, BOOL bNonCharKey);
+VOID    UpdateDisplayBuf(HWND hWnd, CHAR cCharacter);
+VOID    Bell(HWND hWnd);
+VOID    BackSpace(HWND hWnd);
+VOID    HorizontalTab(HWND hWnd);
+VOID    LineFeed(HWND hWnd);
+VOID    VerticalTab(HWND hWnd);
+VOID    FormFeed(HWND hWnd);
+VOID    CarraigeReturn(HWND hWnd);
 
 #endif

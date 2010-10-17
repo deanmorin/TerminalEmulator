@@ -56,13 +56,13 @@
 ------------------------------------------------------------------------------*/
 DWORD WINAPI ReadThreadProc(HWND hWnd) {
 
-    PWNDDATA        pwd             = NULL;
-    CHAR            psReadBuf[1000]  = {0};
-    OVERLAPPED      overlap         = {0};
-    DWORD           dwBytesRead     = 0;
-    DWORD           dwEvent         = 0;
-    DWORD           dwError         = 0;
-    COMSTAT         cs              = {0};
+    PWNDDATA        pwd                     = NULL;
+    CHAR            psReadBuf[READ_BUFSIZE] = {0};
+    OVERLAPPED      overlap                 = {0};
+    DWORD           dwBytesRead             = 0;
+    DWORD           dwEvent                 = 0;
+    DWORD           dwError                 = 0;
+    COMSTAT         cs                      = {0};
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
     
     if ((overlap.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL)) == NULL) {

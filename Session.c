@@ -3,7 +3,7 @@
 /*------------------------------------------------------------------------------
 -- FUNCTION:    Connect
 --
--- DATE:        Oct 03, 2010
+-- DATE:        Oct 16, 2010
 --
 -- REVISIONS:   (Date and Description)
 --
@@ -17,15 +17,16 @@
 --
 -- NOTES:
 --              Opens a serial port connection, displaying appropriate dialogue
---              messages for failed connections. If successful, it then makes 
---              the disconnect menu option available, and the connect option 
---              unavailable.
+--              messages for failed connections. If successful, it sets comm 
+--              settings and creates a read thread. It then enables/disables
+--              the appropriate menu choices.
 ------------------------------------------------------------------------------*/
 BOOL Connect(HWND hWnd) {
     
     PWNDDATA        pwd         = {0};
     COMMTIMEOUTS    timeOut     = {0};
     DWORD           dwThreadid  = 0;
+    DWORD           i           = 0;
 
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
 
@@ -77,9 +78,12 @@ BOOL Connect(HWND hWnd) {
     }
                                 
     // enable/disable appropriate menu choices
-    EnableMenuItem(GetMenu(hWnd), IDM_CONNECT,    MF_GRAYED);
     EnableMenuItem(GetMenu(hWnd), IDM_DISCONNECT, MF_ENABLED);
-    //disable others
+    EnableMenuItem(GetMenu(hWnd), IDM_CONNECT,    MF_GRAYED);
+    EnableMenuItem(GetMenu(hWnd), IDM_COMMSET,    MF_GRAYED);
+    for (i = 0; i < NO_OF_PORTS; i++) {
+        EnableMenuItem(GetMenu(hWnd), IDM_COM1 + i, MF_GRAYED);
+    }
 
     return TRUE;
 }
@@ -87,7 +91,7 @@ BOOL Connect(HWND hWnd) {
 /*------------------------------------------------------------------------------
 -- FUNCTION:    Disconnect
 --
--- DATE:        Oct 03, 2010
+-- DATE:        Oct 16, 2010
 --
 -- REVISIONS:   (Date and Description)
 --
@@ -100,15 +104,15 @@ BOOL Connect(HWND hWnd) {
 -- RETURNS:     VOID.
 --
 -- NOTES:
---              Closes the active serial port, then makes the disconnect menu
---              option unavailable, and the connect option available.
+--              Closes the active serial port and read thread, then
+--              enables/disables the appropriate menu choices.
 ------------------------------------------------------------------------------*/
 VOID Disconnect(HWND hWnd) {
 
     PWNDDATA        pwd         = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
     COMMTIMEOUTS    timeOut     = {0};
     DWORD           dwThreadid  = 0;
-    
+    DWORD           i           = 0;
     
     if (pwd->hPort == NULL) {
         return;
@@ -130,7 +134,11 @@ VOID Disconnect(HWND hWnd) {
     CloseHandle(pwd->hPort);
     pwd->hPort = NULL;
 
-    //Extend to comm settings
+    // enable/disable appropriate menu choices    
     EnableMenuItem(GetMenu(hWnd), IDM_DISCONNECT, MF_GRAYED);
-    EnableMenuItem(GetMenu(hWnd), IDM_CONNECT,    MF_ENABLED);    
+    EnableMenuItem(GetMenu(hWnd), IDM_CONNECT,    MF_ENABLED);
+    EnableMenuItem(GetMenu(hWnd), IDM_COMMSET,    MF_ENABLED);
+    for (i = 0; i < NO_OF_PORTS; i++) {
+        EnableMenuItem(GetMenu(hWnd), IDM_COM1 + i, MF_ENABLED);
+    }
 }
