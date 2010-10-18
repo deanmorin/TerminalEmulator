@@ -187,7 +187,7 @@ VOID VerticalTab(HWND hWnd) {
     SetCaretPos(X, Y);
 }
 
-// same as esc[j
+
 VOID FormFeed(HWND hWnd) {
     
     PWNDDATA    pwd = NULL;
@@ -203,6 +203,7 @@ VOID FormFeed(HWND hWnd) {
             CHARACTER(j, i).style       = 0;
          }
     }
+    SetCursorPos(0, 0);
 }
 
 
@@ -213,10 +214,37 @@ VOID CarraigeReturn(HWND hWnd) {
     SetCaretPos(X, Y);
 }
 
-VOID MoveCursor(HWND hWnd, DWORD cxCoord, DWORD cyCoord) {
+VOID MoveCursor(HWND hWnd, UINT cxCoord, UINT cyCoord) {
     PWNDDATA pwd = NULL;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
-    X = cxCoord - 1;
-    Y = cyCoord - 1;
+    X = --cxCoord;
+    Y = --cyCoord;
     SetCaretPos(X_POS, Y_POS);
+}
+
+VOID ClearScreen(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection) {
+    PWNDDATA    pwd = NULL;
+    UINT        i   = 0;
+    UINT        j   = 0;
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
+
+    j = --cxCoord;
+    while (j < CHARS_PER_LINE  &&  j >= 0) {
+        CHARACTER(j, i).character   = ' ';
+        CHARACTER(j, i).fgColor     = 0;
+        CHARACTER(j, i).bgColor     = 0;
+        CHARACTER(j, i).style       = 0;
+        j += iDirection;
+    }
+
+    i = cyCoord + iDirection;
+    while (i < LINES_PER_SCRN  &&  i >= 0) {
+        for (j = 0; j < CHARS_PER_LINE; j++) {
+            CHARACTER(j, i).character   = ' ';
+            CHARACTER(j, i).fgColor     = 0;
+            CHARACTER(j, i).bgColor     = 0;
+            CHARACTER(j, i).style       = 0;
+         }
+         i += iDirection;
+    }
 }

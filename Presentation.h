@@ -4,6 +4,8 @@
 #include "TerminalEmulator.h"
 
 #define TAB_LENGTH  8
+#define CLR_UP      -1
+#define CLR_DOWN    1
 
 VOID    ProcessRead(HWND hWnd, CHAR psReadBuf[], DWORD dwBytesRead);
 VOID    ProcessSpecialChar(HWND hWnd, CHAR cSpChar);
@@ -16,6 +18,9 @@ VOID    LineFeed(HWND hWnd);
 VOID    VerticalTab(HWND hWnd);
 VOID    FormFeed(HWND hWnd);
 VOID    CarraigeReturn(HWND hWnd);
-VOID    MoveCursor(HWND hWnd, DWORD cxCoord, DWORD cyCoord);
+
+VOID    ClearScreen(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection);
+VOID    MoveCursor(HWND hWnd, UINT cxCoord, UINT cyCoord);
+
 
 #endif

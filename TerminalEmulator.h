@@ -15,6 +15,7 @@
 #include "Session.h"
 
 #pragma warning(disable:4002)
+#pragma warning(disable:4996)
 
 /*--------------------------------Macros--------------------------------------*/
 #define ASCII_DIGIT_OFFSET  48      // the ascii value for '0'

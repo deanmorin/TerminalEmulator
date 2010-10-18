@@ -48,6 +48,7 @@ VOID InitTerminal(HWND hWnd) {
     pwd->hPort          = NULL;
     SetWindowLongPtr(hWnd, 0, (LONG_PTR) pwd);
 
+    // set default comm settings
     cc.dwSize = sizeof(COMMCONFIG);
     GetCommConfig(pwd->hPort, &cc, &cc.dwSize);
     FillMemory(&cc.dcb, sizeof(DCB), 0);
@@ -57,6 +58,7 @@ VOID InitTerminal(HWND hWnd) {
     pwd->bConnected         = FALSE;
     pwd->psIncompleteEsc    = NULL;
 
+    // get text attributes and store values into the window extra struct
     hdc = GetDC(hWnd);
     SelectObject(hdc, GetStockObject(OEM_FIXED_FONT));
     GetTextMetrics(hdc, &tm);
@@ -69,6 +71,7 @@ VOID InitTerminal(HWND hWnd) {
     CreateCaret(hWnd, NULL, PADDING, PADDING);
     ShowCaret(hWnd);
 
+    // initialize a "blank" display buffer
     for (i = 0; i < LINES_PER_SCRN; i++) {
         pwd->displayBuf.rows[i] = (PLINE) malloc(sizeof(LINE));
         for (j = 0; j < CHARS_PER_LINE; j++) {
@@ -166,5 +169,9 @@ VOID Paint(HWND hWnd) {
     EndPaint(hWnd, &ps);
 }
 
-VOID SetColorAndStyle(BYTE fgColor, BYTE bgColor, BYTE style) {
+VOID SetColorAndStyle(HDC hdc, BYTE fgColor, BYTE bgColor, BYTE style) {
+    /*
+    SetTextColor(hdc, crarray[fgColor]);
+    SetBgColor(hdc,   crarraf[bgColor]);
+    */
 }

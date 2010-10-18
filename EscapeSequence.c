@@ -235,8 +235,15 @@ BOOL CheckDigits(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 			    case 'K':
 					DISPLAY_ERROR("num K");
 			        break;
-			    case 'J':
-					DISPLAY_ERROR("num J");
+			    case 'J':                                       // Esc[0J
+					if (pwd->dwEscSeqValues[1] == 0) {
+                        ClearScreen(hWnd, X, Y, CLR_DOWN);
+                    } else if (pwd->dwEscSeqValues[1] == 1) {
+                        ClearScreen(hWnd, X, Y, CLR_UP);
+                    } else {
+                        ClearScreen(hWnd, X, Y, CLR_UP);
+                        ClearScreen(hWnd, X, Y, CLR_DOWN);
+                    }
 			        break;
 			    case 'm':
 					DISPLAY_ERROR("num m");
@@ -357,11 +364,11 @@ BOOL CheckDigitsSemi(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 
 	    if (digit >= 0) {
 	        switch (psBuffer[(*i)++]) {
-				case 'r':
-					DISPLAY_ERROR("num semi num r");
+				case 'r':                                       
+					DISPLAY_ERROR("num semi num r");            
 					break;
-				case 'H':
-					MoveCursor(hWnd, pwd->dwEscSeqValues[1], 
+				case 'H':                                       // Esc0;0H
+					MoveCursor(hWnd, pwd->dwEscSeqValues[1],        
                               pwd->dwEscSeqValues[2]);
 					break;
 				case 'f':
@@ -479,19 +486,19 @@ BOOL ProcessSquare(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
             MoveCursor(hWnd, 1, 1);
 		    break;
 		case 'f':
-			DISPLAY_ERROR("numf");
+			DISPLAY_ERROR("f");
 		    break;
 		case 'g':
-			DISPLAY_ERROR("numg");
+			DISPLAY_ERROR("g");
 		    break;
 		case 'K':
-			DISPLAY_ERROR("numK");
+			DISPLAY_ERROR("K");
 		    break;
-		case 'J':
-			DISPLAY_ERROR("numJ");
+		case 'J':                                               // Esc[J
+			ClearScreen(hWnd, X, Y, CLR_DOWN);                      
 		    break;
 		case 'm':
-			DISPLAY_ERROR("numm");
+			DISPLAY_ERROR("m");
 		    break;
 		case '?':
 			if (!CheckDigitsQ(hWnd, psBuffer, length, i)) {
@@ -499,8 +506,8 @@ BOOL ProcessSquare(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 			}
 		    break;
         case ';':
-            if (psBuffer[*i] == 'H') {
-                MoveCursor(hWnd, 1, 1);
+            if (psBuffer[*i] == 'H') {                          // Esc[;H
+                MoveCursor(hWnd, 1, 1);                             
             } else {
                 (*i)--;
             }
