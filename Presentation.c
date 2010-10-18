@@ -77,8 +77,8 @@ VOID ProcessRead(HWND hWnd, CHAR* psReadBuf, DWORD dwBytesRead) {
         // the last escape sequence was incomplete, but still could be valid
         dwCombinedLength    = pwd->dwIncompleteLength + dwBytesRead;
         psCombined          = (CHAR*) malloc(sizeof(CHAR) * dwCombinedLength);
-        *psCombined         = *pwd->psIncompleteEsc;
-        *(psCombined + pwd->dwIncompleteLength) = *psReadBuf;
+        strncpy(psCombined, pwd->psIncompleteEsc, pwd->dwIncompleteLength);
+        strncpy((psCombined + pwd->dwIncompleteLength), psReadBuf, dwBytesRead);
         pwd->psIncompleteEsc = NULL;
         ProcessEsc(hWnd, psCombined, dwCombinedLength);
         return;
@@ -168,11 +168,23 @@ VOID HorizontalTab(HWND hWnd) {
 
 
 VOID LineFeed(HWND hWnd) {   
-    PWNDDATA pwd = NULL;
+    PWNDDATA    pwd         = NULL;
+    PLINE       pNewLine    = NULL;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);    
     X = 0;
-    if (Y < LINES_PER_SCRN - 1) {   // change to scroll
+    if (Y < LINES_PER_SCRN - 1) {
         Y++;
+    } else {
+        for (i = 0; i < LINES_PER_SCRN - 1; i++) {  //put in function
+            ROW(i) = ROW(i + 1);
+        }
+        ROW(i) = pNewLine;
+        for (j = 0; j < CHARS_PER_LINE; j++) {
+            CHARACTER(j, i).character   = ' ';
+            CHARACTER(j, i).fgColor     = 0;
+            CHARACTER(j, i).bgColor     = 0;
+            CHARACTER(j, i).style       = 0;
+        }
     }
     SetCaretPos(X, Y);
 }
@@ -181,15 +193,25 @@ VOID LineFeed(HWND hWnd) {
 VOID VerticalTab(HWND hWnd) { 
     PWNDDATA pwd = NULL;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);    
-    if (Y < LINES_PER_SCRN - 1) {   // change to scroll
+    if (Y < LINES_PER_SCRN - 1) { 
         Y++;
+    } else {
+        for (i = 0; i < LINES_PER_SCRN - 1; i++) {  //put in function
+            ROW(i) = ROW(i + 1);
+        }
+        ROW(i) = pNewLine;
+        for (j = 0; j < CHARS_PER_LINE; j++) {
+            CHARACTER(j, i).character   = ' ';
+            CHARACTER(j, i).fgColor     = 0;
+            CHARACTER(j, i).bgColor     = 0;
+            CHARACTER(j, i).style       = 0;
+        }
     }
     SetCaretPos(X, Y);
 }
 
 
-VOID FormFeed(HWND hWnd) {
-    
+VOID FormFeed(HWND hWnd) { 
     PWNDDATA    pwd = NULL;
     UINT        i   = 0;
     UINT        j   = 0;
@@ -222,12 +244,13 @@ VOID MoveCursor(HWND hWnd, UINT cxCoord, UINT cyCoord) {
     SetCaretPos(X_POS, Y_POS);
 }
 
-VOID ClearScreen(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection) {
+VOID ClearLine(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection) {
     PWNDDATA    pwd = NULL;
     UINT        i   = 0;
     UINT        j   = 0;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
-
+    
+    i = --cyCoord;
     j = --cxCoord;
     while (j < CHARS_PER_LINE  &&  j >= 0) {
         CHARACTER(j, i).character   = ' ';
@@ -236,8 +259,17 @@ VOID ClearScreen(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection) {
         CHARACTER(j, i).style       = 0;
         j += iDirection;
     }
+}
 
-    i = cyCoord + iDirection;
+VOID ClearScreen(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection) {
+    PWNDDATA    pwd = NULL;
+    UINT        i   = 0;
+    UINT        j   = 0;
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
+
+    ClearLine(hWnd, cxCoord, cyCoord, iDirection);
+
+    i = --cyCoord + iDirection;
     while (i < LINES_PER_SCRN  &&  i >= 0) {
         for (j = 0; j < CHARS_PER_LINE; j++) {
             CHARACTER(j, i).character   = ' ';

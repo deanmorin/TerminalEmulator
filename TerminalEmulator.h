@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <tchar.h>
 #include "Application.h"
+#include "EscapeSequence.h"
 #include "Menu.h"
 #include "Physical.h"
 #include "Presentation.h"
@@ -19,7 +20,7 @@
 
 /*--------------------------------Macros--------------------------------------*/
 #define ASCII_DIGIT_OFFSET  48      // the ascii value for '0'
-#define PADDING             5      // the distance between the edge of the
+#define PADDING             5       // the distance between the edge of the
                                     // client area, and any text
 #define NO_OF_PORTS         9       // the number of ports available from the
                                     // "Select Ports" dropdown
@@ -33,8 +34,9 @@
 #define Y_POS               pwd->displayBuf.cyCursor * pwd->displayBuf.cyChar + PADDING
 #define CHAR_WIDTH          pwd->displayBuf.cxChar
 #define CHAR_HEIGHT         pwd->displayBuf.cyChar
-#define CHARACTER(X, Y)     pwd->displayBuf.rows[Y]->columns[X]
-#define SET_BUFFER(C, X, Y) pwd->displayBuf.rows[Y]->columns[X].character = C;
+#define CHARACTER(x, y)     pwd->displayBuf.rows[y]->columns[x]
+#define SET_BUFFER(c, x, y) pwd->displayBuf.rows[y]->columns[x].character = c;
+#define ROW(y)              pwd->displayBuf.rows[y]
 
 /*-------------------------------Structures-----------------------------------*/
 typedef struct charInfo {

@@ -158,7 +158,8 @@ VOID Paint(HWND hWnd) {
                              
     for (i = 0; i < LINES_PER_SCRN; i++) {
         for (j = 0; j < CHARS_PER_LINE; j++) {
-            SetColorAndStyle(CHARACTER(j, i).fgColor,
+            SetColorAndStyle(hdc,
+                             CHARACTER(j, i).fgColor,
                              CHARACTER(j, i).bgColor,
                              CHARACTER(j, i).style);
             a[0] = CHARACTER(j, i).character;

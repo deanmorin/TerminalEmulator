@@ -359,7 +359,7 @@ BOOL CheckDigitsSemi(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
         pwd->dwEscSeqValues[0]++;
         pwd->dwEscSeqValues[2] = digit;
 	    
-		if ((*i)++ == length - 1)
+		if (*i == length - 1)
 			return FALSE;
 
 	    if (digit >= 0) {

@@ -6,6 +6,8 @@
 #define TAB_LENGTH  8
 #define CLR_UP      -1
 #define CLR_DOWN    1
+#define CLR_LEFT    -1
+#define CLR_RIGHT   1
 
 VOID    ProcessRead(HWND hWnd, CHAR psReadBuf[], DWORD dwBytesRead);
 VOID    ProcessSpecialChar(HWND hWnd, CHAR cSpChar);
@@ -19,6 +21,7 @@ VOID    VerticalTab(HWND hWnd);
 VOID    FormFeed(HWND hWnd);
 VOID    CarraigeReturn(HWND hWnd);
 
+VOID    ClearLine(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection);
 VOID    ClearScreen(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection);
 VOID    MoveCursor(HWND hWnd, UINT cxCoord, UINT cyCoord);
 
