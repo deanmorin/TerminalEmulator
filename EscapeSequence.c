@@ -165,13 +165,13 @@ DWORD GetDigit(CHAR* psBuffer, DWORD length, DWORD *i) {
 	CHAR *psDigits = NULL;
 	DWORD digit;
 	psDigits = (CHAR*)malloc(sizeof(CHAR)*(length + 1));
-	*psDigits = *(psBuffer + *i);
+	strncpy(psDigits, psBuffer + *i, length - *i + 1);
 	psDigits[length - *i] = '\0';
 
-	j = strspn(psDigits + *i, "0123456789");
+	j = strspn(psDigits, "0123456789");
 	strncpy(psDigits, psBuffer + *i, j);
 	digit = atoi(psDigits);
-	*i += j;
+	*i += j - 1;
 	free(psDigits);
 
 	return digit;
@@ -320,7 +320,7 @@ BOOL CheckDigitsSemi(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 					break;
 				case 'H':                                       // Esc0;0H
                 case 'f':                                       // Esc0;0f
-					MoveCursor(hWnd, ESC_VAL(1), ESC_VAL(2));
+					MoveCursor(hWnd, ESC_VAL(2), ESC_VAL(1));
 					break;
 				case 'm':
 					DISPLAY_ERROR("num semi num m");

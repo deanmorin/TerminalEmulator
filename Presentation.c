@@ -135,12 +135,14 @@ VOID UpdateDisplayBuf(HWND hWnd, CHAR cCharacter) {
         X = 0;
         if (Y < LINES_PER_SCRN - 1) { 
             Y++;
+        } else {
+            ScrollDown(hWnd);
         }
     } else {
         X++;
     }
     SetCaretPos(X_POS + PADDING, Y_POS + PADDING); 
-    ReleaseDC(hWnd, hdc);
+    //ReleaseDC(hWnd, hdc);
 }
 
 
@@ -168,25 +170,14 @@ VOID HorizontalTab(HWND hWnd) {
 
 
 VOID LineFeed(HWND hWnd) {   
-    PWNDDATA    pwd         = NULL;
-    PLINE       pNewLine    = NULL;
-    UINT        i           = 0;
-    UINT        j           = 0;
+    PWNDDATA pwd = NULL;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0); 
+
     X = 0;
     if (Y < LINES_PER_SCRN - 1) {
         Y++;
     } else {
-        for (i = 0; i < LINES_PER_SCRN - 1; i++) {  //put in function
-            ROW(i) = ROW(i + 1);
-        }
-        ROW(i) = pNewLine;
-        for (j = 0; j < CHARS_PER_LINE; j++) {
-            CHARACTER(j, i).character   = ' ';
-            CHARACTER(j, i).fgColor     = 0;
-            CHARACTER(j, i).bgColor     = 0;
-            CHARACTER(j, i).style       = 0;
-        }
+        ScrollDown(hWnd);
     }
     SetCaretPos(X, Y);
 }
@@ -198,19 +189,12 @@ VOID VerticalTab(HWND hWnd) {
     UINT        i           = 0;
     UINT        j           = 0;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);    
+    pNewLine = (PLINE) malloc(sizeof(LINE));    
+    
     if (Y < LINES_PER_SCRN - 1) { 
         Y++;
     } else {
-        for (i = 0; i < LINES_PER_SCRN - 1; i++) {  //put in function
-            ROW(i) = ROW(i + 1);
-        }
-        ROW(i) = pNewLine;
-        for (j = 0; j < CHARS_PER_LINE; j++) {
-            CHARACTER(j, i).character   = ' ';
-            CHARACTER(j, i).fgColor     = 0;
-            CHARACTER(j, i).bgColor     = 0;
-            CHARACTER(j, i).style       = 0;
-        }
+        ScrollDown(hWnd);
     }
     SetCaretPos(X, Y);
 }
@@ -296,5 +280,25 @@ VOID ClearScreen(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection) {
             CHARACTER(j, i).style       = 0;
          }
          i += iDirection;
+    }
+}
+
+VOID ScrollDown(HWND hWnd) {
+    PWNDDATA    pwd         = NULL;
+    PLINE       pNewLine    = NULL;
+    UINT        i           = 0;
+    UINT        j           = 0;
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0); 
+    pNewLine = (PLINE) malloc(sizeof(LINE));
+
+    for (i = 0; i < LINES_PER_SCRN - 1; i++) {
+        ROW(i) = ROW(i + 1);
+    }
+    ROW(i) = pNewLine;
+    for (j = 0; j < CHARS_PER_LINE; j++) {
+        CHARACTER(j, i).character   = ' ';
+        CHARACTER(j, i).fgColor     = 0;
+        CHARACTER(j, i).bgColor     = 0;
+        CHARACTER(j, i).style       = 0;
     }
 }

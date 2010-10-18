@@ -153,6 +153,7 @@ VOID Paint(HWND hWnd) {
     UINT            j       = 0;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
 
+    HideCaret(hWnd);
     hdc = BeginPaint(hWnd, &ps) ;
     SelectObject(hdc, GetStockObject(OEM_FIXED_FONT));
                              
@@ -168,6 +169,8 @@ VOID Paint(HWND hWnd) {
         }
     }
     EndPaint(hWnd, &ps);
+    SetCaretPos(X_POS, Y_POS);
+    ShowCaret(hWnd);
 }
 
 VOID SetColorAndStyle(HDC hdc, BYTE fgColor, BYTE bgColor, BYTE style) {
