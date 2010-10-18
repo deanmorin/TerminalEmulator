@@ -23,7 +23,7 @@ VOID    CarraigeReturn(HWND hWnd);
 
 VOID    ClearLine(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection);
 VOID    ClearScreen(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection);
-VOID    MoveCursor(HWND hWnd, UINT cxCoord, UINT cyCoord);
+VOID    MoveCursor(HWND hWnd, INT cxCoord, INT cyCoord);
 
 
 #endif

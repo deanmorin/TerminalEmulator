@@ -170,7 +170,9 @@ VOID HorizontalTab(HWND hWnd) {
 VOID LineFeed(HWND hWnd) {   
     PWNDDATA    pwd         = NULL;
     PLINE       pNewLine    = NULL;
-    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);    
+    UINT        i           = 0;
+    UINT        j           = 0;
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0); 
     X = 0;
     if (Y < LINES_PER_SCRN - 1) {
         Y++;
@@ -191,7 +193,10 @@ VOID LineFeed(HWND hWnd) {
 
 
 VOID VerticalTab(HWND hWnd) { 
-    PWNDDATA pwd = NULL;
+    PWNDDATA    pwd         = NULL;
+    PLINE       pNewLine    = NULL;
+    UINT        i           = 0;
+    UINT        j           = 0;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);    
     if (Y < LINES_PER_SCRN - 1) { 
         Y++;
@@ -236,11 +241,24 @@ VOID CarraigeReturn(HWND hWnd) {
     SetCaretPos(X, Y);
 }
 
-VOID MoveCursor(HWND hWnd, UINT cxCoord, UINT cyCoord) {
+VOID MoveCursor(HWND hWnd, INT cxCoord, INT cyCoord) {
     PWNDDATA pwd = NULL;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
-    X = --cxCoord;
-    Y = --cyCoord;
+    
+    if (cxCoord < 1) {
+        X = 0;
+    } else if (cxCoord > CHARS_PER_LINE) {
+        X = CHARS_PER_LINE - 1;
+    } else {
+        X = --cxCoord;   
+    }
+    if (cyCoord < 1) {
+        Y = 0;
+    } else if (cyCoord > LINES_PER_SCRN) {
+        Y = LINES_PER_SCRN - 1;
+    } else {
+        Y = --cyCoord;
+    }
     SetCaretPos(X_POS, Y_POS);
 }
 
@@ -250,8 +268,8 @@ VOID ClearLine(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection) {
     UINT        j   = 0;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
     
-    i = --cyCoord;
-    j = --cxCoord;
+    i = cyCoord;
+    j = cxCoord;
     while (j < CHARS_PER_LINE  &&  j >= 0) {
         CHARACTER(j, i).character   = ' ';
         CHARACTER(j, i).fgColor     = 0;
@@ -269,7 +287,7 @@ VOID ClearScreen(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection) {
 
     ClearLine(hWnd, cxCoord, cyCoord, iDirection);
 
-    i = --cyCoord + iDirection;
+    i = cyCoord + iDirection;
     while (i < LINES_PER_SCRN  &&  i >= 0) {
         for (j = 0; j < CHARS_PER_LINE; j++) {
             CHARACTER(j, i).character   = ' ';

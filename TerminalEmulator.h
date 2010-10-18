@@ -37,6 +37,7 @@
 #define CHARACTER(x, y)     pwd->displayBuf.rows[y]->columns[x]
 #define SET_BUFFER(c, x, y) pwd->displayBuf.rows[y]->columns[x].character = c;
 #define ROW(y)              pwd->displayBuf.rows[y]
+#define ESC_VAL(x)          pwd->dwEscSeqValues[x]
 
 /*-------------------------------Structures-----------------------------------*/
 typedef struct charInfo {
