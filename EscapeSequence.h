@@ -12,5 +12,6 @@ DWORD	GetDigit(CHAR* psBuffer, DWORD length, DWORD *i);
 BOOL	CheckDigits(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i);
 BOOL	CheckDigitsQ(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i);
 BOOL	CheckDigitsSemi(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i);
+VOID    ProcessFont(HWND hWnd);
 
 #endif

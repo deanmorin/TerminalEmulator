@@ -1,16 +1,16 @@
-/*------------------------------------------------------------------------------------------------------------------
--- SOURCE FILE:     WinMain.c - Contains the WinMain function for a program that
---                              reads and writes characters over a serial 
---                              connection.
---
--- PROGRAM: Hyper Omega Terminal
+/*------------------------------------------------------------------------------
+-- SOURCE FILE:     TerminalEmulator.c - Contains the WinMain() and WinProc()
+--                                       functions for the Intelligent Terminal
+--                                       Emulator.
+--                      
+-- PROGRAM:     Advanced Terminal Emulator Pro
 --
 -- FUNCTIONS:
---              int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
---                                 PSTR szCmdLine, int iCmdShow)
+--              int     WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
+--              LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM) 
 --
 --
--- DATE:        Oct 03, 2010
+-- DATE:        Oct 18, 2010
 --
 -- REVISIONS:   (Date and Description)
 --
@@ -19,22 +19,21 @@
 -- PROGRAMMER:  Dean Morin
 --
 -- NOTES:
---              Contains WinMain - the conventional name used for the 
---              application entry point.
-----------------------------------------------------------------------------------------------------------------------*/
+-- The main entry point for the program.
+------------------------------------------------------------------------------*/
 
 #include "TerminalEmulator.h"
 
 /*------------------------------------------------------------------------------------------------------------------
--- FUNCTION:    WndProc
+-- FUNCTION:    WinMain
 --
--- DATE:        Oct 03, 2010
+-- DATE:        Oct 18, 2010
 --
 -- REVISIONS:   (Date and Description)
 --
--- DESIGNER:    Microsoft / Dean Morin
+-- DESIGNER:    Dean Morin
 --
--- PROGRAMMER:  Microsoft / Dean Morin
+-- PROGRAMMER:  Dean Morin
 --
 -- INTERFACE:   int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 --
@@ -53,8 +52,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                 
     static TCHAR    szAppName[] = TEXT("TerminalEmulator");
     HWND            hWnd        = NULL;
-    MSG             msg;
-    WNDCLASS        wndclass;
+    MSG             msg         = {0};
+    WNDCLASS        wndclass    = {0};
     PWNDDATA        pwd         = NULL;
 
     wndclass.style          = CS_HREDRAW | CS_VREDRAW;
@@ -64,7 +63,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     wndclass.hInstance      = hInstance;
     wndclass.hIcon          = LoadIcon(NULL, IDI_APPLICATION);
     wndclass.hCursor        = LoadCursor(NULL, IDC_ARROW);
-    wndclass.hbrBackground  = (HBRUSH) GetStockObject(WHITE_BRUSH);
+    wndclass.hbrBackground  = (HBRUSH) GetStockObject(BLACK_BRUSH);
     wndclass.lpszMenuName   = TEXT("MYMENU");
     wndclass.lpszClassName  = szAppName;
 
@@ -76,7 +75,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     hWnd = CreateWindow(szAppName,
                         TEXT("Advanced Terminal Emulator Pro (Trial Expired)"), 
-                        WS_OVERLAPPEDWINDOW,
+                        WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU 
+                        | WS_MINIMIZEBOX,
                         CW_USEDEFAULT, CW_USEDEFAULT,
                         CW_USEDEFAULT, CW_USEDEFAULT,
                         NULL, NULL, hInstance, NULL);
@@ -93,36 +93,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 }
 
 /*------------------------------------------------------------------------------
--- SOURCE FILE:     TerminalEmulator.c - The main functionality for an application
---                                   that reads and writes characters over a 
---                                   serial connection.
---
--- PROGRAM:     Hyper Omega Terminal
---
--- FUNCTIONS:
---              LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
---
---
--- DATE:        Oct 03, 2010
---
--- REVISIONS:   (Date and Description)
---
--- DESIGNER:    Dean Morin
---
--- PROGRAMMER:  Dean Morin
---
--- NOTES:
--- The program creates a serial connection. Once connected, all WM_CHAR 
--- messages will be sent over the active serial port. The program also
--- polls for incoming characters during idle time (when there are no
--- messages on the message queue). 
-------------------------------------------------------------------------------*/
-
-
-/*------------------------------------------------------------------------------
 -- FUNCTION:    WndProc
 --
--- DATE:        Oct 03, 2010
+-- DATE:        Oct 18, 2010
 --
 -- REVISIONS:   (Date and Description)
 --
@@ -142,7 +115,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 --              Application.c. Currently, WM_PAINT will update the screen with
 --              black text only.
 ------------------------------------------------------------------------------*/
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
+                         WPARAM wParam, LPARAM lParam) {
                              
     PWNDDATA pwd = {0};
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);

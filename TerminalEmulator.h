@@ -38,6 +38,9 @@
 #define SET_BUFFER(c, x, y) pwd->displayBuf.rows[y]->columns[x].character = c;
 #define ROW(y)              pwd->displayBuf.rows[y]
 #define ESC_VAL(x)          pwd->dwEscSeqValues[x]
+#define CUR_FG_COLOR        pwd->displayBuf.fgColor
+#define CUR_BG_COLOR        pwd->displayBuf.bgColor
+#define CUR_STYLE           pwd->displayBuf.style
 
 /*-------------------------------Structures-----------------------------------*/
 typedef struct charInfo {
@@ -58,6 +61,10 @@ typedef struct displayBuf {
     UINT    cyChar;
     UINT    cxCursor;
     UINT    cyCursor;
+    HFONT	hFont;
+	BYTE    fgColor;
+    BYTE    bgColor;
+    BYTE    style;
 } DISPLAYBUF;
 
 typedef struct wndData {

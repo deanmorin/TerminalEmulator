@@ -60,23 +60,34 @@ VOID InitTerminal(HWND hWnd) {
 
     // get text attributes and store values into the window extra struct
     hdc = GetDC(hWnd);
+	pwd->displayBuf.hFont = (HFONT) GetStockObject(OEM_FIXED_FONT);
     SelectObject(hdc, GetStockObject(OEM_FIXED_FONT));
     GetTextMetrics(hdc, &tm);
-    pwd->displayBuf.cxChar = tm.tmAveCharWidth;
-    pwd->displayBuf.cyChar = tm.tmHeight;
+    CHAR_WIDTH  = tm.tmAveCharWidth;
+    CHAR_HEIGHT = tm.tmHeight;
     ReleaseDC(hWnd, hdc);
+
+    SetWindowPos(hWnd, NULL, CW_USEDEFAULT, CW_USEDEFAULT, 
+                 CHAR_WIDTH  * CHARS_PER_LINE + PADDING,
+                 CHAR_HEIGHT * LINES_PER_SCRN + PADDING,
+                 SWP_NOREPOSITION | SWP_SHOWWINDOW | SWP_NOZORDER);
+
+    CUR_FG_COLOR = 7;
+    CUR_BG_COLOR = 0;
+    CUR_STYLE    = 0;
 
     X = 0;
     Y = 0;
     CreateCaret(hWnd, NULL, PADDING, PADDING);
     ShowCaret(hWnd);
 
+
     // initialize a "blank" display buffer
     for (i = 0; i < LINES_PER_SCRN; i++) {
         pwd->displayBuf.rows[i] = (PLINE) malloc(sizeof(LINE));
         for (j = 0; j < CHARS_PER_LINE; j++) {
             CHARACTER(j, i).character   = ' ';
-            CHARACTER(j, i).fgColor     = 0;
+            CHARACTER(j, i).fgColor     = 7;
             CHARACTER(j, i).bgColor     = 0;
             CHARACTER(j, i).style       = 0;
         }
@@ -145,24 +156,40 @@ VOID PerformMenuAction(HWND hWnd, UINT message, WPARAM wParam) {
 
 VOID Paint(HWND hWnd) {
     
-    PWNDDATA        pwd     = NULL;
-    CHAR            a[2]    = {0};
-    HDC             hdc     = {0};
-    PAINTSTRUCT     ps      = {0};
-    UINT            i       = 0;
-    UINT            j       = 0;
+    PWNDDATA        pwd         = NULL;
+    CHAR            a[2]        = {0};
+    HDC             hdc         = {0};
+    PAINTSTRUCT     ps          = {0};
+    UINT            i           = 0;
+    UINT            j           = 0;
+    UINT            tempfgColor = 0;
+    UINT            tempbgColor = 0;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
 
     HideCaret(hWnd);
     hdc = BeginPaint(hWnd, &ps) ;
-    SelectObject(hdc, GetStockObject(OEM_FIXED_FONT));
+    SelectObject(hdc, pwd->displayBuf.hFont);
+
+    tempfgColor = CUR_FG_COLOR;
+    tempbgColor = CUR_BG_COLOR;
+
+    SetTextColor(hdc, TXT_COLOURS[CUR_FG_COLOR]);
+    SetBkColor(hdc, TXT_COLOURS[CUR_BG_COLOR]);
                              
     for (i = 0; i < LINES_PER_SCRN; i++) {
         for (j = 0; j < CHARS_PER_LINE; j++) {
-            SetColorAndStyle(hdc,
-                             CHARACTER(j, i).fgColor,
-                             CHARACTER(j, i).bgColor,
-                             CHARACTER(j, i).style);
+            
+            if (CHARACTER(j, i).fgColor != tempfgColor) {
+                SetTextColor(hdc, TXT_COLOURS[CHARACTER(j, i).fgColor]);
+                tempfgColor = CHARACTER(j, i).fgColor;
+            }
+            if (CHARACTER(j, i).bgColor != tempbgColor) {
+	            SetBkColor(hdc, TXT_COLOURS[CHARACTER(j, i).bgColor]);
+                tempbgColor = CHARACTER(j, i).bgColor;
+            }
+            if (CHARACTER(j, i).style != CUR_STYLE) {
+            }
+
             a[0] = CHARACTER(j, i).character;
             TextOut(hdc, CHAR_WIDTH * j + PADDING, CHAR_HEIGHT * i + PADDING,
                     (LPCWSTR) a, 1);
@@ -173,9 +200,18 @@ VOID Paint(HWND hWnd) {
     ShowCaret(hWnd);
 }
 
-VOID SetColorAndStyle(HDC hdc, BYTE fgColor, BYTE bgColor, BYTE style) {
+HDC SetColorAndStyle(HWND hWnd, HDC hdc, BYTE fgColor, BYTE bgColor, BYTE style) {
+	PWNDDATA	pwd = NULL;
+	LOGFONT		lf;
+	
+	pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
     /*
-    SetTextColor(hdc, crarray[fgColor]);
-    SetBgColor(hdc,   crarraf[bgColor]);
+	GetObject(pwd->displayBuf.hFont, sizeof(LOGFONT), &lf);
+	lf.lfUnderline = style;
+	SelectObject(hdc, CreateFontIndirect(&lf));
     */
+	SetTextColor(hdc, TXT_COLOURS[fgColor]);
+	SetBkColor(hdc, TXT_COLOURS[bgColor]);
+
+	return hdc;
 }

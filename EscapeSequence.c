@@ -1,4 +1,4 @@
-#include "Presentation.h"
+#include "EscapeSequence.h"
 
 /*------------------------------------------------------------------------------
 -- FUNCTION:    ProcessEsc
@@ -255,7 +255,7 @@ BOOL CheckDigits(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
                     }
 			        break;
 			    case 'm':
-					DISPLAY_ERROR("num m");
+					ProcessFont(hWnd);
 			        break;
 			    case ';':
 			        if (!CheckDigitsSemi(hWnd, psBuffer, length, i))
@@ -323,7 +323,7 @@ BOOL CheckDigitsSemi(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 					MoveCursor(hWnd, ESC_VAL(2), ESC_VAL(1));
 					break;
 				case 'm':
-					DISPLAY_ERROR("num semi num m");
+					ProcessFont(hWnd);
 					break;
 				case ';':
 					do {
@@ -343,7 +343,7 @@ BOOL CheckDigitsSemi(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 						}
 					} while (psBuffer[(*i)++] == ';');
 					if (psBuffer[(*i)-1] == 'm') {
-						DISPLAY_ERROR("num semi num etc m");
+						ProcessFont(hWnd);
 					} else {
 						(*i)--;
 					}
@@ -459,7 +459,9 @@ BOOL ProcessSquare(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 			ClearScreen(hWnd, X, Y, CLR_DOWN);                      
 		    break;
 		case 'm':
-			DISPLAY_ERROR("m");
+			ESC_VAL(0)++;
+			ESC_VAL(1) = 0;
+			ProcessFont(hWnd);
 		    break;
 		case '?':
 			if (!CheckDigitsQ(hWnd, psBuffer, length, i)) {
@@ -530,4 +532,48 @@ BOOL ProcessParen(CHAR* psBuffer, DWORD length, DWORD *i) {
 			break;
 	}
 	return TRUE;
+}
+
+VOID ProcessFont(HWND hWnd) {
+	UINT		i		= 0;
+	UINT		temp	= 0;
+	PWNDDATA    pwd		= NULL;
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
+
+	for (i = 1; i <= ESC_VAL(0); i++) {
+		switch (ESC_VAL(i)) {
+			case 0: // default
+				CUR_FG_COLOR	= 7;
+				CUR_BG_COLOR	= 0;
+				CUR_STYLE	    = 0;
+				break;
+			case 1: // bright
+				if (CUR_FG_COLOR <= 7)
+					CUR_FG_COLOR += 8;
+				break;
+			case 2: // dim
+				if (CUR_FG_COLOR > 7)
+					CUR_FG_COLOR -= 8;
+				break;
+			case 4: // underline
+				CUR_STYLE = 1;
+				break;
+			case 5: // blink
+				// not implemented
+				break;
+			case 7: // inverse
+				temp            = CUR_FG_COLOR;
+				CUR_FG_COLOR	= CUR_BG_COLOR;
+				CUR_BG_COLOR    = temp;
+				break;
+			case 8: // hide
+				CUR_FG_COLOR = CUR_BG_COLOR;
+				break;
+			default: // set colors by value
+    				if (ESC_VAL(i) / 10 == 3)
+					CUR_FG_COLOR	= ESC_VAL(i) % 10;
+				if (ESC_VAL(i) / 10 == 4)
+					CUR_BG_COLOR	= ESC_VAL(i) % 10;
+		}
+	}
 }

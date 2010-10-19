@@ -130,7 +130,11 @@ VOID UpdateDisplayBuf(HWND hWnd, CHAR cCharacter) {
             (LPCWSTR) a, 1);
     */
            
-    SET_BUFFER(cCharacter, X, Y);
+    CHARACTER(X, Y).character   = cCharacter;
+    CHARACTER(X, Y).fgColor     = CUR_FG_COLOR;
+	CHARACTER(X, Y).bgColor     = CUR_BG_COLOR;
+	CHARACTER(X, Y).style	    = CUR_STYLE;
+    
     if (X >= CHARS_PER_LINE - 1) { 
         X = 0;
         if (Y < LINES_PER_SCRN - 1) { 
@@ -209,8 +213,7 @@ VOID FormFeed(HWND hWnd) {
     for (i = 0; i < LINES_PER_SCRN; i++) {
         for (j = 0; j < CHARS_PER_LINE; j++) {
             CHARACTER(j, i).character   = ' ';
-            CHARACTER(j, i).fgColor     = 0;
-            CHARACTER(j, i).bgColor     = 0;
+            CHARACTER(j, i).bgColor     = CUR_BG_COLOR;
             CHARACTER(j, i).style       = 0;
          }
     }
@@ -256,8 +259,7 @@ VOID ClearLine(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection) {
     j = cxCoord;
     while (j < CHARS_PER_LINE  &&  j >= 0) {
         CHARACTER(j, i).character   = ' ';
-        CHARACTER(j, i).fgColor     = 0;
-        CHARACTER(j, i).bgColor     = 0;
+        CHARACTER(j, i).bgColor     = CUR_BG_COLOR;
         CHARACTER(j, i).style       = 0;
         j += iDirection;
     }
@@ -275,8 +277,7 @@ VOID ClearScreen(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection) {
     while (i < LINES_PER_SCRN  &&  i >= 0) {
         for (j = 0; j < CHARS_PER_LINE; j++) {
             CHARACTER(j, i).character   = ' ';
-            CHARACTER(j, i).fgColor     = 0;
-            CHARACTER(j, i).bgColor     = 0;
+            CHARACTER(j, i).bgColor     = CUR_BG_COLOR;
             CHARACTER(j, i).style       = 0;
          }
          i += iDirection;
@@ -297,8 +298,7 @@ VOID ScrollDown(HWND hWnd) {
     ROW(i) = pNewLine;
     for (j = 0; j < CHARS_PER_LINE; j++) {
         CHARACTER(j, i).character   = ' ';
-        CHARACTER(j, i).fgColor     = 0;
-        CHARACTER(j, i).bgColor     = 0;
+        CHARACTER(j, i).bgColor     = CUR_BG_COLOR;
         CHARACTER(j, i).style       = 0;
     }
 }
