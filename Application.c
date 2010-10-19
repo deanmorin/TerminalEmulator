@@ -66,12 +66,13 @@ VOID InitTerminal(HWND hWnd) {
     CHAR_WIDTH  = tm.tmAveCharWidth;
     CHAR_HEIGHT = tm.tmHeight;
     ReleaseDC(hWnd, hdc);
-
-    SetWindowPos(hWnd, NULL, CW_USEDEFAULT, CW_USEDEFAULT, 
+    
+    SetWindowPos(hWnd, NULL, 0, 0, 
                  CHAR_WIDTH  * CHARS_PER_LINE + PADDING,
                  CHAR_HEIGHT * LINES_PER_SCRN + PADDING,
                  SWP_NOREPOSITION | SWP_SHOWWINDOW | SWP_NOZORDER);
-
+    ShowWindow(hWnd, SW_SHOW); 
+    
     CUR_FG_COLOR = 7;
     CUR_BG_COLOR = 0;
     CUR_STYLE    = 0;
