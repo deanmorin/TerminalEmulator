@@ -64,7 +64,29 @@ BOOL ProcessWrite(HWND hWnd, WPARAM wParam, BOOL bNonCharKey) {
     return TRUE;
 }
 
-
+/*------------------------------------------------------------------------------
+-- FUNCTION:    ProcessRead
+--
+-- DATE:        Oct 19, 2010
+--
+-- REVISIONS:   (Date and Description)
+--
+-- DESIGNER:    Dean Morin, Marcel Vangrootheest
+--
+-- PROGRAMMER:  Dean Morin, Marcel Vangrootheest
+--
+-- INTERFACE:   VOID ProcessRead(HWND, CHAR*, DWORD)
+--
+-- RETURNS:     VOID.
+--
+-- NOTES:
+--              All characters read off the serial port are passed to this
+--              function, which checks the buffer and passes it to the 
+--              appropriate processing function. If an unfinished escape 
+--              sequence was previously processed, then the buffer that was 
+--              passed in is appended to the incomplete one, and passed to 
+--              ProcessEsc().
+------------------------------------------------------------------------------*/
 VOID ProcessRead(HWND hWnd, CHAR* psReadBuf, DWORD dwBytesRead) {
 
     PWNDDATA    pwd                 = NULL;
@@ -96,7 +118,24 @@ VOID ProcessRead(HWND hWnd, CHAR* psReadBuf, DWORD dwBytesRead) {
     }
 }
 
-
+/*------------------------------------------------------------------------------
+-- FUNCTION:    ProcessSpecialChar
+--
+-- DATE:        Oct 19, 2010
+--
+-- REVISIONS:   (Date and Description)
+--
+-- DESIGNER:    Dean Morin
+--
+-- PROGRAMMER:  Dean Morin
+--
+-- INTERFACE:   BOOL ProcessSpecialChar(HWND, CHAR)
+--
+-- RETURNS:     VOID.
+--
+-- NOTES:
+--              Calls a function to handle the special character, cSpChar.
+------------------------------------------------------------------------------*/
 VOID ProcessSpecialChar(HWND hWnd, CHAR cSpChar) {
     
     switch (cSpChar) {
@@ -111,7 +150,25 @@ VOID ProcessSpecialChar(HWND hWnd, CHAR cSpChar) {
     }
 }
 
-
+/*------------------------------------------------------------------------------
+-- FUNCTION:    UpdateDisplayBuf
+--
+-- DATE:        Oct 19, 2010
+--
+-- REVISIONS:   (Date and Description)
+--
+-- DESIGNER:    Dean Morin
+--
+-- PROGRAMMER:  Dean Morin
+--
+-- INTERFACE:   VOID UpdateDisplayBuf(HWND, CHAR)
+--
+-- RETURNS:     VOID.
+--
+-- NOTES:
+--              Adds cCharacter to the display buffer and updates the cursor
+--              position.
+------------------------------------------------------------------------------*/
 VOID UpdateDisplayBuf(HWND hWnd, CHAR cCharacter) {
     
     PWNDDATA    pwd     = NULL;

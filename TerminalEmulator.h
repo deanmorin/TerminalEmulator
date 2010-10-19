@@ -85,7 +85,7 @@ typedef struct wndData {
 	BOOL			cursorMode;
 } WNDDATA, *PWNDDATA;
 
-/*---------------------------Function Prototyes-------------------------------*/
+/*---------------------------Function Prototypes------------------------------*/
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 #endif
