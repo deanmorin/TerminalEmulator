@@ -196,19 +196,3 @@ VOID Paint(HWND hWnd) {
     SetCaretPos(X_POS, Y_POS);
     ShowCaret(hWnd);
 }
-
-HDC SetColorAndStyle(HWND hWnd, HDC hdc, BYTE fgColor, BYTE bgColor, BYTE style) {
-	PWNDDATA	pwd = NULL;
-	LOGFONT		lf;
-	
-	pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
-    /*
-	GetObject(pwd->displayBuf.hFont, sizeof(LOGFONT), &lf);
-	lf.lfUnderline = style;
-	SelectObject(hdc, CreateFontIndirect(&lf));
-    */
-	SetTextColor(hdc, TXT_COLOURS[fgColor]);
-	SetBkColor(hdc, TXT_COLOURS[bgColor]);
-
-	return hdc;
-}

@@ -445,6 +445,18 @@ BOOL ProcessSquare(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
 	
     switch (psBuffer[(*i)++]) {
+		case 'A':                                       // Esc[A
+			MoveCursor(hWnd, X + 1, --Y + 1);
+			break;
+		case 'B':                                       // Esc[B
+			MoveCursor(hWnd, X + 1, ++Y + 1);
+			break;
+		case 'C':                                       // Esc[C
+			MoveCursor(hWnd, ++X + 1, Y + 1);
+			break;
+		case 'D':                                       // Esc[D
+			MoveCursor(hWnd, --X + 1, Y + 1);
+			break;
         case 'H':                                               // Esc[H
         case 'f':                                               // Esc[f
             MoveCursor(hWnd, 1, 1);

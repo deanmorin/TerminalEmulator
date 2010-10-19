@@ -15,7 +15,5 @@ static const COLORREF TXT_COLOURS[16] = {RGB(0,0,0),		RGB(128,0,0),
 VOID    InitTerminal(HWND hWnd);
 VOID    Paint(HWND hWnd);
 VOID    PerformMenuAction(HWND hWnd, UINT message, WPARAM wParam);
-HDC	    SetColorAndStyle(HWND hWnd, HDC hdc, BYTE fgColor, BYTE bgColor,
-                         BYTE style);
 
 #endif
