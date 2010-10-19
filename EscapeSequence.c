@@ -135,6 +135,9 @@ VOID ProcessEsc(HWND hWnd, CHAR* psBuffer, DWORD length) {
 			}
 			i++;
 			ProcessRead(hWnd, psBuffer + i, length - i);
+		case '7':
+		case '8':
+			break;
 		default :
 			i--;
 			ProcessRead(hWnd, psBuffer + i, length - i);
