@@ -97,6 +97,35 @@ VOID ProcessRead(HWND hWnd, CHAR* psReadBuf, DWORD dwBytesRead) {
 }
 
 
+VOID ProcessEsc(HWND hWnd, CHAR* psBuffer, DWORD length) {
+    
+    PWNDDATA    pwd = NULL;
+    DWORD       i   = 0;  
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
+    
+    for (i = 1; i < length; i++) {
+        switch (psBuffer[i]) {
+            // invalid sequence
+            case VK_ESCAPE:
+                ProcessEsc(hWnd, psBuffer + i, length - i);
+                return;
+            // valid sequence
+            case 'm':
+                DISPLAY_ERROR("m");
+                if (i == length - 1) {
+                    return;
+                }
+                ProcessRead(hWnd, psBuffer + i + 1, length - i - 1);
+                return;
+            default:
+                break;
+        }
+    }
+    pwd->psIncompleteEsc    = psBuffer;
+    pwd->dwIncompleteLength = length;
+}
+
+
 VOID ProcessSpecialChar(HWND hWnd, CHAR cSpChar) {
     
     switch (cSpChar) {
