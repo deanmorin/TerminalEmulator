@@ -126,6 +126,15 @@ VOID ProcessEsc(HWND hWnd, CHAR* psBuffer, DWORD length) {
 				return;
 			ProcessRead(hWnd, psBuffer + i, length - i);
 			return;
+		case '#':
+			if (i >= length)
+				break;
+			if (isdigit(psBuffer[i])) {
+				if (i >= length - 1)
+					return;
+			}
+			i++;
+			ProcessRead(hWnd, psBuffer + i, length - i);
 		default :
 			i--;
 			ProcessRead(hWnd, psBuffer + i, length - i);
@@ -261,6 +270,8 @@ BOOL CheckDigits(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 			        if (!CheckDigitsSemi(hWnd, psBuffer, length, i))
 			            return FALSE;
 			        break;
+				case 'q':
+					break;
 				default:
 					(*i)--;
 		    }
@@ -347,6 +358,10 @@ BOOL CheckDigitsSemi(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 					} else {
 						(*i)--;
 					}
+					break;
+				case 'q':
+				case 'y':
+				case 'R':
 					break;
 				default:
 					(*i)--;
