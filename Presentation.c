@@ -121,15 +121,7 @@ VOID UpdateDisplayBuf(HWND hWnd, CHAR cCharacter) {
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
 
     a[0] = cCharacter;
-    /*
-    hdc = GetDC(hWnd);  
-    SelectObject(hdc, GetStockObject(OEM_FIXED_FONT));
-    TextOut(hdc, 
-            X_POS + PADDING, 
-            Y_POS + PADDING, 
-            (LPCWSTR) a, 1);
-    */
-           
+     
     CHARACTER(X, Y).character   = cCharacter;
     CHARACTER(X, Y).fgColor     = CUR_FG_COLOR;
 	CHARACTER(X, Y).bgColor     = CUR_BG_COLOR;
@@ -146,7 +138,6 @@ VOID UpdateDisplayBuf(HWND hWnd, CHAR cCharacter) {
         X++;
     }
     SetCaretPos(X_POS + PADDING, Y_POS + PADDING); 
-    //ReleaseDC(hWnd, hdc);
 }
 
 

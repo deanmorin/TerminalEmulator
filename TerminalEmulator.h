@@ -20,12 +20,14 @@
 
 /*--------------------------------Macros--------------------------------------*/
 #define ASCII_DIGIT_OFFSET  48      // the ascii value for '0'
-#define PADDING             5       // the distance between the edge of the
+#define PADDING             10      // the distance between the edge of the
                                     // client area, and any text
 #define NO_OF_PORTS         9       // the number of ports available from the
                                     // "Select Ports" dropdown
 #define CHARS_PER_LINE      80      // characters per line
 #define LINES_PER_SCRN      24      // lines per screen
+#define X_FUDGE_FACTOR      1.01    // a hack used to size the window  
+#define Y_FUDGE_FACTOR      1.19    // a hack used to size the window
 
 #define DISPLAY_ERROR(x)    MessageBox(NULL, TEXT(x), TEXT(""), MB_OK)
 #define X                   pwd->displayBuf.cxCursor

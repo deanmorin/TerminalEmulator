@@ -40,7 +40,6 @@ VOID InitTerminal(HWND hWnd) {
     UINT        i   = 0;
     UINT        j   = 0;
 
-
     if ((pwd = (PWNDDATA) malloc(sizeof(WNDDATA))) == 0) {
         DISPLAY_ERROR("Error allocating memory for WNDDATA structure");
     }
@@ -63,25 +62,18 @@ VOID InitTerminal(HWND hWnd) {
 	pwd->displayBuf.hFont = (HFONT) GetStockObject(OEM_FIXED_FONT);
     SelectObject(hdc, GetStockObject(OEM_FIXED_FONT));
     GetTextMetrics(hdc, &tm);
-    CHAR_WIDTH  = tm.tmAveCharWidth;
-    CHAR_HEIGHT = tm.tmHeight;
     ReleaseDC(hWnd, hdc);
-    
-    SetWindowPos(hWnd, NULL, 0, 0, 
-                 CHAR_WIDTH  * CHARS_PER_LINE + PADDING,
-                 CHAR_HEIGHT * LINES_PER_SCRN + PADDING,
-                 SWP_NOREPOSITION | SWP_SHOWWINDOW | SWP_NOZORDER);
-    ShowWindow(hWnd, SW_SHOW); 
-    
-    CUR_FG_COLOR = 7;
-    CUR_BG_COLOR = 0;
-    CUR_STYLE    = 0;
 
-    X = 0;
-    Y = 0;
+    CHAR_WIDTH      = tm.tmAveCharWidth;
+    CHAR_HEIGHT     = tm.tmHeight;
+    CUR_FG_COLOR    = 7;
+    CUR_BG_COLOR    = 0;
+    CUR_STYLE       = 0;
+    X               = 0;
+    Y               = 0;
+
     CreateCaret(hWnd, NULL, PADDING, PADDING);
     ShowCaret(hWnd);
-
 
     // initialize a "blank" display buffer
     for (i = 0; i < LINES_PER_SCRN; i++) {
@@ -93,6 +85,15 @@ VOID InitTerminal(HWND hWnd) {
             CHARACTER(j, i).style       = 0;
         }
     }
+    
+    SetWindowPos(hWnd, NULL, 50, 50, 
+                 (int) (CHAR_WIDTH  * CHARS_PER_LINE * X_FUDGE_FACTOR
+                        + 2 * PADDING),
+                 (int) (CHAR_HEIGHT * LINES_PER_SCRN * Y_FUDGE_FACTOR 
+                        + 2 * PADDING),
+                 SWP_NOREPOSITION | SWP_SHOWWINDOW | SWP_NOZORDER);
+    ShowWindow(hWnd, SW_SHOW);
+    UpdateWindow(hWnd);
 }
 
 /*------------------------------------------------------------------------------
