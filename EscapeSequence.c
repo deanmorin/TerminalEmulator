@@ -401,10 +401,14 @@ BOOL CheckDigitsQ(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 	    if (digit >= 0) {
 	        switch (psBuffer[(*i)++]) {
 			    case 'h':
-					pwd->cursorMode = FALSE;
+					if (digit == 1) {
+						pwd->cursorMode = FALSE;
+					}
 					break;
 			    case 'l':
-					pwd->cursorMode = TRUE;
+					if (digit == 1) {
+						pwd->cursorMode = TRUE;
+					}
 				    break;
 				default:
 					(*i)--;
