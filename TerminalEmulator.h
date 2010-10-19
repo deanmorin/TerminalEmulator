@@ -41,6 +41,7 @@
 #define CUR_FG_COLOR        pwd->displayBuf.fgColor
 #define CUR_BG_COLOR        pwd->displayBuf.bgColor
 #define CUR_STYLE           pwd->displayBuf.style
+#define BRIGHTNESS			pwd->displayBuf.brightness
 
 /*-------------------------------Structures-----------------------------------*/
 typedef struct charInfo {
@@ -65,6 +66,7 @@ typedef struct displayBuf {
 	BYTE    fgColor;
     BYTE    bgColor;
     BYTE    style;
+	BYTE	brightness;
 } DISPLAYBUF;
 
 typedef struct wndData {
