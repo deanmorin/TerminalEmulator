@@ -270,6 +270,8 @@ BOOL CheckDigits(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 			        if (!CheckDigitsSemi(hWnd, psBuffer, length, i))
 			            return FALSE;
 			        break;
+				case 'q':
+					break;
 				default:
 					(*i)--;
 		    }
@@ -356,6 +358,10 @@ BOOL CheckDigitsSemi(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 					} else {
 						(*i)--;
 					}
+					break;
+				case 'q':
+				case 'y':
+				case 'R':
 					break;
 				default:
 					(*i)--;
