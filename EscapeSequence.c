@@ -91,37 +91,37 @@ VOID ProcessEsc(HWND hWnd, CHAR* psBuffer, DWORD length) {
 			}
 			break;
 		case '>':
-			DISPLAY_ERROR(">");
+			//DISPLAY_ERROR(">");
 			if (i == length)
 				return;
 			ProcessRead(hWnd, psBuffer + i, length - i);
 			return;
 		case '=':
-			DISPLAY_ERROR("=");
+			//DISPLAY_ERROR("=");
 			if (i == length)
 				return;
 			ProcessRead(hWnd, psBuffer + i, length - i);
 			return;
 		case 'M':
-			DISPLAY_ERROR("M");
+			//DISPLAY_ERROR("M");
 			if (i == length)
 				return;
 			ProcessRead(hWnd, psBuffer + i, length - i);
 			return;
 		case 'H':
-			DISPLAY_ERROR("H");
+			//DISPLAY_ERROR("H");
 			if (i == length)
 				return;
 			ProcessRead(hWnd, psBuffer + i, length - i);
 			return;
 		case 'E':
-			DISPLAY_ERROR("E");
+			LineFeed(hWnd);
 			if (i == length)
 				return;
 			ProcessRead(hWnd, psBuffer + i, length - i);
 			return;
 		case 'D':
-			DISPLAY_ERROR("D");
+			MoveCursor(hWnd, X + 1, ++Y + 1);
 			if (i == length)
 				return;
 			ProcessRead(hWnd, psBuffer + i, length - i);
@@ -232,7 +232,7 @@ BOOL CheckDigits(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 					MoveCursor(hWnd, X - ESC_VAL(1) + 1, Y + 1);
 			        break;
 			    case 'g':                                      
-					DISPLAY_ERROR("num g");
+					//DISPLAY_ERROR("num g");
 			        break;
 			    case 'K':                                       // Esc[0K
 				    if (ESC_VAL(1) == 0) {
@@ -316,7 +316,7 @@ BOOL CheckDigitsSemi(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 	    if (digit >= 0) {
 	        switch (psBuffer[(*i)++]) {
 				case 'r':                                       
-					DISPLAY_ERROR("num semi num r");            
+					//DISPLAY_ERROR("num semi num r");            
 					break;
 				case 'H':                                       // Esc0;0H
                 case 'f':                                       // Esc0;0f
@@ -401,10 +401,10 @@ BOOL CheckDigitsQ(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 	    if (digit >= 0) {
 	        switch (psBuffer[(*i)++]) {
 			    case 'h':
-					DISPLAY_ERROR("q num h");
+					//DISPLAY_ERROR("q num h");
 					break;
 			    case 'l':
-					DISPLAY_ERROR("q num l");
+					//DISPLAY_ERROR("q num l");
 				    break;
 				default:
 					(*i)--;
@@ -450,7 +450,7 @@ BOOL ProcessSquare(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
             MoveCursor(hWnd, 1, 1);
 		    break;
 		case 'g':
-			DISPLAY_ERROR("g");
+			//DISPLAY_ERROR("g");
 		    break;
 		case 'K':                                               // Esc[K
 			ClearLine(hWnd, X, Y, CLR_RIGHT);
@@ -513,19 +513,19 @@ BOOL ProcessSquare(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 BOOL ProcessParen(CHAR* psBuffer, DWORD length, DWORD *i) {
 	switch (psBuffer[(*i)++]) {
 		case 'A':
-			DISPLAY_ERROR("paran A");
+			//DISPLAY_ERROR("paran A");
 		    break;
 		case 'B':
-			DISPLAY_ERROR("paran B");
+			//DISPLAY_ERROR("paran B");
 		    break;
 		case '0':
-			DISPLAY_ERROR("paran 0");
+			//DISPLAY_ERROR("paran 0");
 		    break;
 		case '1':
-			DISPLAY_ERROR("paran 1");
+			//DISPLAY_ERROR("paran 1");
 		    break;
 		case '2':
-			DISPLAY_ERROR("paran 2");
+			//DISPLAY_ERROR("paran 2");
 		    break;
 		default:
 			(*i)--;
@@ -550,10 +550,12 @@ VOID ProcessFont(HWND hWnd) {
 			case 1: // bright
 				if (CUR_FG_COLOR <= 7)
 					CUR_FG_COLOR += 8;
+				BRIGHTNESS = 8;
 				break;
 			case 2: // dim
 				if (CUR_FG_COLOR > 7)
 					CUR_FG_COLOR -= 8;
+				BRIGHTNESS = 0;
 				break;
 			case 4: // underline
 				CUR_STYLE = 1;
@@ -571,9 +573,9 @@ VOID ProcessFont(HWND hWnd) {
 				break;
 			default: // set colors by value
     				if (ESC_VAL(i) / 10 == 3)
-					CUR_FG_COLOR	= ESC_VAL(i) % 10;
+					CUR_FG_COLOR	= (ESC_VAL(i) % 10) + BRIGHTNESS;
 				if (ESC_VAL(i) / 10 == 4)
-					CUR_BG_COLOR	= ESC_VAL(i) % 10;
+					CUR_BG_COLOR	= (ESC_VAL(i) % 10) + BRIGHTNESS;
 		}
 	}
 }

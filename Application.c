@@ -67,15 +67,6 @@ VOID InitTerminal(HWND hWnd) {
     CHAR_HEIGHT = tm.tmHeight;
     ReleaseDC(hWnd, hdc);
 
-    SetWindowPos(hWnd, NULL, CW_USEDEFAULT, CW_USEDEFAULT, 
-                 CHAR_WIDTH  * CHARS_PER_LINE + PADDING,
-                 CHAR_HEIGHT * LINES_PER_SCRN + PADDING,
-                 SWP_NOREPOSITION | SWP_SHOWWINDOW | SWP_NOZORDER);
-
-    CUR_FG_COLOR = 7;
-    CUR_BG_COLOR = 0;
-    CUR_STYLE    = 0;
-
     X = 0;
     Y = 0;
     CreateCaret(hWnd, NULL, PADDING, PADDING);

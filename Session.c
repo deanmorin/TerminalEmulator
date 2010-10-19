@@ -76,6 +76,11 @@ BOOL Connect(HWND hWnd) {
         DISPLAY_ERROR("Error creating read thread");
         return FALSE;
     }
+
+    CUR_FG_COLOR = 7;
+    CUR_BG_COLOR = 0;
+    CUR_STYLE    = 0;
+	BRIGHTNESS	 = 0;
                                 
     // enable/disable appropriate menu choices
     EnableMenuItem(GetMenu(hWnd), IDM_DISCONNECT, MF_ENABLED);
