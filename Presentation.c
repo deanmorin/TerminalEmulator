@@ -289,12 +289,12 @@ VOID MoveCursor(HWND hWnd, INT cxCoord, INT cyCoord, BOOL bScroll) {
         X = --cxCoord;
     }
 
-    if (cyCoord < 1) {
+    if (cyCoord < WINDOW_TOP + 1) {
         Y = WINDOW_TOP;
         if (bScroll) {
             ScrollUp(hWnd);
         }
-    } else if (cyCoord >= WINDOW_BOTTOM) {
+    } else if (cyCoord > WINDOW_BOTTOM + 1) {
         Y = WINDOW_BOTTOM;
         if (bScroll) {
             ScrollDown(hWnd);
@@ -367,15 +367,18 @@ VOID ScrollUp(HWND hWnd) {
     INT         j           = 0;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0); 
     pNewLine = (PLINE) malloc(sizeof(LINE));
-
-    for (i = WINDOW_TOP + 1; i < WINDOW_BOTTOM; i++) {
+    /*
+    for (i = WINDOW_BOTTOM; i > WINDOW_TOP; i++) {
+        ROW(i) = ROW(i - 1);
+    }*/
+    for (i = WINDOW_TOP + 1; i <= WINDOW_BOTTOM; i++) {
         ROW(i) = ROW(i - 1);
     }
     ROW(WINDOW_TOP) = pNewLine;
     for (j = 0; j < CHARS_PER_LINE; j++) {
-        CHARACTER(j, i).character   = ' ';
-        CHARACTER(j, i).bgColor     = CUR_BG_COLOR;
-        CHARACTER(j, i).style       = 0;
+        CHARACTER(j, WINDOW_TOP).character   = ' ';
+        CHARACTER(j, WINDOW_TOP).bgColor     = CUR_BG_COLOR;
+        CHARACTER(j, WINDOW_TOP).style       = 0;
     }
 }
 
