@@ -32,7 +32,7 @@ BOOL ProcessWrite(HWND hWnd, WPARAM wParam, BOOL bNonCharKey) {
     if (bNonCharKey) {
 
         psWriteBuf[0] = VK_ESCAPE;
-        if (wParam <= VK_DOWN) { 
+		if (wParam <= VK_DOWN && pwd->cursorMode) { 
             psWriteBuf[1] = '[';
         } else {
             psWriteBuf[1] = 'O';
