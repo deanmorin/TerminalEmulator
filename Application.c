@@ -157,7 +157,7 @@ VOID PerformMenuAction(HWND hWnd, UINT message, WPARAM wParam) {
 
 
 VOID Paint(HWND hWnd) {
-    
+    LOGFONT			lf;
     PWNDDATA        pwd         = NULL;
     CHAR            a[2]        = {0};
     HDC             hdc         = {0};
@@ -166,6 +166,7 @@ VOID Paint(HWND hWnd) {
     UINT            j           = 0;
     UINT            tempfgColor = 0;
     UINT            tempbgColor = 0;
+	UINT            tempStyle	= 0;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
 
     HideCaret(hWnd);
@@ -174,6 +175,7 @@ VOID Paint(HWND hWnd) {
 
     tempfgColor = CUR_FG_COLOR;
     tempbgColor = CUR_BG_COLOR;
+	tempStyle	= CUR_STYLE;
 
     SetTextColor(hdc, TXT_COLOURS[CUR_FG_COLOR]);
     SetBkColor(hdc, TXT_COLOURS[CUR_BG_COLOR]);
@@ -190,6 +192,10 @@ VOID Paint(HWND hWnd) {
                 tempbgColor = CHARACTER(j, i).bgColor;
             }
             if (CHARACTER(j, i).style != CUR_STYLE) {
+				GetObject(pwd->displayBuf.hFont, sizeof(LOGFONT), &lf);
+				lf.lfUnderline = CHARACTER(j, i).style;
+				SelectObject(hdc, CreateFontIndirect(&lf));
+				tempStyle	= CUR_STYLE;
             }
 
             a[0] = CHARACTER(j, i).character;
@@ -200,20 +206,4 @@ VOID Paint(HWND hWnd) {
     EndPaint(hWnd, &ps);
     SetCaretPos(X_POS, Y_POS);
     ShowCaret(hWnd);
-}
-
-HDC SetColorAndStyle(HWND hWnd, HDC hdc, BYTE fgColor, BYTE bgColor, BYTE style) {
-	PWNDDATA	pwd = NULL;
-	LOGFONT		lf;
-	
-	pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
-    /*
-	GetObject(pwd->displayBuf.hFont, sizeof(LOGFONT), &lf);
-	lf.lfUnderline = style;
-	SelectObject(hdc, CreateFontIndirect(&lf));
-    */
-	SetTextColor(hdc, TXT_COLOURS[fgColor]);
-	SetBkColor(hdc, TXT_COLOURS[bgColor]);
-
-	return hdc;
 }
