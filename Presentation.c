@@ -367,18 +367,15 @@ VOID ScrollUp(HWND hWnd) {
     INT         j           = 0;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0); 
     pNewLine = (PLINE) malloc(sizeof(LINE));
-    /*
-    for (i = WINDOW_BOTTOM; i > WINDOW_TOP; i++) {
-        ROW(i) = ROW(i - 1);
-    }*/
-    for (i = WINDOW_TOP + 1; i <= WINDOW_BOTTOM; i++) {
+    
+    for (i = WINDOW_BOTTOM; i > WINDOW_TOP; i--) {
         ROW(i) = ROW(i - 1);
     }
-    ROW(WINDOW_TOP) = pNewLine;
+    ROW(i) = pNewLine;
     for (j = 0; j < CHARS_PER_LINE; j++) {
-        CHARACTER(j, WINDOW_TOP).character   = ' ';
-        CHARACTER(j, WINDOW_TOP).bgColor     = CUR_BG_COLOR;
-        CHARACTER(j, WINDOW_TOP).style       = 0;
+        CHARACTER(j, i).character   = ' ';
+        CHARACTER(j, i).bgColor     = CUR_BG_COLOR;
+        CHARACTER(j, i).style       = 0;
     }
 }
 
