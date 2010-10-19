@@ -32,18 +32,20 @@
 #define DISPLAY_ERROR(x)    MessageBox(NULL, TEXT(x), TEXT(""), MB_OK)
 #define X                   pwd->displayBuf.cxCursor
 #define Y                   pwd->displayBuf.cyCursor
-#define X_POS               pwd->displayBuf.cxCursor * pwd->displayBuf.cxChar + PADDING
-#define Y_POS               pwd->displayBuf.cyCursor * pwd->displayBuf.cyChar + PADDING
+#define X_POS               pwd->displayBuf.cxCursor * pwd->displayBuf.cxChar \
+                                                       + PADDING
+#define Y_POS               pwd->displayBuf.cyCursor * pwd->displayBuf.cyChar \
+                                                       + PADDING
 #define CHAR_WIDTH          pwd->displayBuf.cxChar
 #define CHAR_HEIGHT         pwd->displayBuf.cyChar
 #define CHARACTER(x, y)     pwd->displayBuf.rows[y]->columns[x]
 #define SET_BUFFER(c, x, y) pwd->displayBuf.rows[y]->columns[x].character = c;
 #define ROW(y)              pwd->displayBuf.rows[y]
-#define ESC_VAL(x)          pwd->dwEscSeqValues[x]
 #define CUR_FG_COLOR        pwd->displayBuf.fgColor
 #define CUR_BG_COLOR        pwd->displayBuf.bgColor
 #define CUR_STYLE           pwd->displayBuf.style
 #define BRIGHTNESS			pwd->displayBuf.brightness
+#define ESC_VAL(x)          pwd->dwEscSeqValues[x]
 #define WINDOW_TOP          pwd->cyWindowTop
 #define WINDOW_BOTTOM       pwd->cyWindowBottom
 

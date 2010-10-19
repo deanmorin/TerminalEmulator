@@ -418,12 +418,16 @@ BOOL CheckDigitsQ(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 			    case 'h':
 					if (digit == 1) {
 						pwd->cursorMode = FALSE;
-					}
+					} else if (digit == 25) {
+                        ShowTheCursor(hWnd, CUR_SHOW);
+                    }
 					break;
 			    case 'l':
 					if (digit == 1) {
 						pwd->cursorMode = TRUE;
-					}
+					} else if (digit == 25) {
+                        ShowTheCursor(hWnd, CUR_HIDE);
+                    }
 				    break;
 				default:
 					(*i)--;
