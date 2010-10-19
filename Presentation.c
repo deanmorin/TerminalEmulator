@@ -226,7 +226,7 @@ VOID LineFeed(HWND hWnd) {
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0); 
 
     X = 0;
-    if (Y < LINES_PER_SCRN - 1) {
+    if (Y < WINDOW_BOTTOM) {
         Y++;
     } else {
         ScrollDown(hWnd);
@@ -243,7 +243,7 @@ VOID VerticalTab(HWND hWnd) {
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);    
     pNewLine = (PLINE) malloc(sizeof(LINE));    
     
-    if (Y < LINES_PER_SCRN - 1) { 
+    if (Y < WINDOW_BOTTOM) { 
         Y++;
     } else {
         ScrollDown(hWnd);
@@ -276,7 +276,8 @@ VOID CarraigeReturn(HWND hWnd) {
     SetCaretPos(X, Y);
 }
 
-VOID MoveCursor(HWND hWnd, INT cxCoord, INT cyCoord) {
+
+VOID MoveCursor(HWND hWnd, INT cxCoord, INT cyCoord, BOOL bScroll) {
     PWNDDATA pwd = NULL;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
     
@@ -285,17 +286,25 @@ VOID MoveCursor(HWND hWnd, INT cxCoord, INT cyCoord) {
     } else if (cxCoord > CHARS_PER_LINE) {
         X = CHARS_PER_LINE - 1;
     } else {
-        X = --cxCoord;   
+        X = --cxCoord;
     }
+
     if (cyCoord < 1) {
-        Y = 0;
-    } else if (cyCoord > LINES_PER_SCRN) {
-        Y = LINES_PER_SCRN - 1;
+        Y = WINDOW_TOP;
+        if (bScroll) {
+            ScrollUp(hWnd);
+        }
+    } else if (cyCoord >= WINDOW_BOTTOM) {
+        Y = WINDOW_BOTTOM;
+        if (bScroll) {
+            ScrollDown(hWnd);
+        }
     } else {
         Y = --cyCoord;
     }
     SetCaretPos(X_POS, Y_POS);
 }
+
 
 VOID ClearLine(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection) {
     PWNDDATA    pwd = NULL;
@@ -335,12 +344,12 @@ VOID ClearScreen(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection) {
 VOID ScrollDown(HWND hWnd) {
     PWNDDATA    pwd         = NULL;
     PLINE       pNewLine    = NULL;
-    UINT        i           = 0;
-    UINT        j           = 0;
+    INT         i           = 0;
+    INT         j           = 0;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0); 
     pNewLine = (PLINE) malloc(sizeof(LINE));
 
-    for (i = 0; i < LINES_PER_SCRN - 1; i++) {
+    for (i = WINDOW_TOP; i < WINDOW_BOTTOM; i++) {
         ROW(i) = ROW(i + 1);
     }
     ROW(i) = pNewLine;
@@ -349,4 +358,32 @@ VOID ScrollDown(HWND hWnd) {
         CHARACTER(j, i).bgColor     = CUR_BG_COLOR;
         CHARACTER(j, i).style       = 0;
     }
+}
+
+VOID ScrollUp(HWND hWnd) {
+    PWNDDATA    pwd         = NULL;
+    PLINE       pNewLine    = NULL;
+    INT         i           = 0;
+    INT         j           = 0;
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0); 
+    pNewLine = (PLINE) malloc(sizeof(LINE));
+
+    for (i = WINDOW_TOP + 1; i < WINDOW_BOTTOM; i++) {
+        ROW(i) = ROW(i - 1);
+    }
+    ROW(WINDOW_TOP) = pNewLine;
+    for (j = 0; j < CHARS_PER_LINE; j++) {
+        CHARACTER(j, i).character   = ' ';
+        CHARACTER(j, i).bgColor     = CUR_BG_COLOR;
+        CHARACTER(j, i).style       = 0;
+    }
+}
+
+VOID SetScrollRegion(HWND hWnd, INT cyTop, INT cyBottom) {
+    PWNDDATA pwd = NULL;
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0); 
+    MoveCursor(hWnd, 1, cyTop, FALSE);
+    WINDOW_TOP      = --cyTop;
+    WINDOW_BOTTOM   = --cyBottom;
+    
 }

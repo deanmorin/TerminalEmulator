@@ -22,7 +22,9 @@ VOID    FormFeed(HWND hWnd);
 VOID    CarraigeReturn(HWND hWnd);
 VOID    ClearLine(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection);
 VOID    ClearScreen(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection);
-VOID    MoveCursor(HWND hWnd, INT cxCoord, INT cyCoord);
+VOID    MoveCursor(HWND hWnd, INT cxCoord, INT cyCoord, BOOL bScroll);
 VOID    ScrollDown(HWND hWnd);
+VOID    ScrollUp(HWND hWnd);
+VOID    SetScrollRegion(HWND hWnd, INT cyTop, INT cyBottom); 
 
 #endif

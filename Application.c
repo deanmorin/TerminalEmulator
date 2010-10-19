@@ -71,6 +71,8 @@ VOID InitTerminal(HWND hWnd) {
     CUR_STYLE       = 0;
     X               = 0;
     Y               = 0;
+    WINDOW_TOP      = 0;
+    WINDOW_BOTTOM   = LINES_PER_SCRN -1;
 
     CreateCaret(hWnd, NULL, PADDING, PADDING);
     ShowCaret(hWnd);

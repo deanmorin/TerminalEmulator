@@ -44,6 +44,8 @@
 #define CUR_BG_COLOR        pwd->displayBuf.bgColor
 #define CUR_STYLE           pwd->displayBuf.style
 #define BRIGHTNESS			pwd->displayBuf.brightness
+#define WINDOW_TOP          pwd->cyWindowTop
+#define WINDOW_BOTTOM       pwd->cyWindowBottom
 
 /*-------------------------------Structures-----------------------------------*/
 typedef struct charInfo {
@@ -62,8 +64,8 @@ typedef struct displayBuf {
     PLINE   rows[LINES_PER_SCRN];
     UINT    cxChar;
     UINT    cyChar;
-    UINT    cxCursor;
-    UINT    cyCursor;
+    INT     cxCursor;
+    INT     cyCursor;
     HFONT	hFont;
 	BYTE    fgColor;
     BYTE    bgColor;
@@ -83,6 +85,8 @@ typedef struct wndData {
     DISPLAYBUF      displayBuf;
     DWORD           dwEscSeqValues[32];
 	BOOL			cursorMode;
+    INT             cyWindowTop;
+    INT             cyWindowBottom;
 } WNDDATA, *PWNDDATA;
 
 /*---------------------------Function Prototypes------------------------------*/

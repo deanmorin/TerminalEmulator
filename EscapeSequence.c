@@ -103,7 +103,7 @@ VOID ProcessEsc(HWND hWnd, CHAR* psBuffer, DWORD length) {
 			ProcessRead(hWnd, psBuffer + i, length - i);
 			return;
 		case 'M':
-			//DISPLAY_ERROR("M");
+			MoveCursor(hWnd, X + 1, --Y + 1, TRUE);
 			if (i == length)
 				return;
 			ProcessRead(hWnd, psBuffer + i, length - i);
@@ -121,7 +121,7 @@ VOID ProcessEsc(HWND hWnd, CHAR* psBuffer, DWORD length) {
 			ProcessRead(hWnd, psBuffer + i, length - i);
 			return;
 		case 'D':
-			MoveCursor(hWnd, X + 1, ++Y + 1);
+			MoveCursor(hWnd, X + 1, ++Y + 1, TRUE);          
 			if (i == length)
 				return;
 			ProcessRead(hWnd, psBuffer + i, length - i);
@@ -220,16 +220,16 @@ BOOL CheckDigits(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 	    if (digit >= 0) {
 	        switch (psBuffer[(*i)++]) {
 			    case 'A':                                       // Esc[0A
-					MoveCursor(hWnd, X + 1, Y - ESC_VAL(1) + 1);
+					MoveCursor(hWnd, X + 1, Y - ESC_VAL(1) + 1, FALSE);
 			        break;
 			    case 'B':                                       // Esc[0B
-					MoveCursor(hWnd, X + 1, Y + ESC_VAL(1) + 1);
+					MoveCursor(hWnd, X + 1, Y + ESC_VAL(1) + 1, FALSE);
 			        break;
 			    case 'C':                                       // Esc[0C
-					MoveCursor(hWnd, X + ESC_VAL(1) + 1, Y + 1);
+					MoveCursor(hWnd, X + ESC_VAL(1) + 1, Y + 1, FALSE);
 			        break;
 			    case 'D':                                       // Esc[0D
-					MoveCursor(hWnd, X - ESC_VAL(1) + 1, Y + 1);
+					MoveCursor(hWnd, X - ESC_VAL(1) + 1, Y + 1, FALSE);
 			        break;
 			    case 'g':                                      
 					//DISPLAY_ERROR("num g");
@@ -315,12 +315,12 @@ BOOL CheckDigitsSemi(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 
 	    if (digit >= 0) {
 	        switch (psBuffer[(*i)++]) {
-				case 'r':                                       
-					//DISPLAY_ERROR("num semi num r");            
+				case 'r':                                       // Esc0;0r         
+					SetScrollRegion(hWnd, ESC_VAL(1), ESC_VAL(2));  
 					break;
 				case 'H':                                       // Esc0;0H
                 case 'f':                                       // Esc0;0f
-					MoveCursor(hWnd, ESC_VAL(2), ESC_VAL(1));
+					MoveCursor(hWnd, ESC_VAL(2), ESC_VAL(1), FALSE);
 					break;
 				case 'm':
 					ProcessFont(hWnd);
@@ -450,28 +450,28 @@ BOOL ProcessSquare(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 	
     switch (psBuffer[(*i)++]) {
 		case 'A':                                       // Esc[A
-			MoveCursor(hWnd, X + 1, --Y + 1);
+			MoveCursor(hWnd, X + 1, --Y + 1, FALSE);
 			break;
 		case 'B':                                       // Esc[B
-			MoveCursor(hWnd, X + 1, ++Y + 1);
+			MoveCursor(hWnd, X + 1, ++Y + 1, FALSE);
 			break;
 		case 'C':                                       // Esc[C
-			MoveCursor(hWnd, ++X + 1, Y + 1);
+			MoveCursor(hWnd, ++X + 1, Y + 1, FALSE);
 			break;
 		case 'D':                                       // Esc[D
-			MoveCursor(hWnd, --X + 1, Y + 1);
+			MoveCursor(hWnd, --X + 1, Y + 1, FALSE);
 			break;
-        case 'H':                                               // Esc[H
-        case 'f':                                               // Esc[f
-            MoveCursor(hWnd, 1, 1);
+        case 'H':                                       // Esc[H
+        case 'f':                                       // Esc[f
+            MoveCursor(hWnd, 1, 1, FALSE);
 		    break;
 		case 'g':
 			//DISPLAY_ERROR("g");
 		    break;
-		case 'K':                                               // Esc[K
+		case 'K':                                       // Esc[K
 			ClearLine(hWnd, X, Y, CLR_RIGHT);
 		    break;
-		case 'J':                                               // Esc[J
+		case 'J':                                       // Esc[J
 			ClearScreen(hWnd, X, Y, CLR_DOWN);                      
 		    break;
 		case 'm':
@@ -490,7 +490,7 @@ BOOL ProcessSquare(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
             }
             if (psBuffer[*i] == 'H'  ||  psBuffer[*i] == 'f') {                      
                 (*i)++;
-                MoveCursor(hWnd, 1, 1);                             
+                MoveCursor(hWnd, 1, 1, FALSE);                             
             } else {
                 *i;
             }
@@ -549,6 +549,7 @@ BOOL ProcessParen(CHAR* psBuffer, DWORD length, DWORD *i) {
 	}
 	return TRUE;
 }
+
 /*------------------------------------------------------------------------------
 -- FUNCTION:    ProcessFont
 --
