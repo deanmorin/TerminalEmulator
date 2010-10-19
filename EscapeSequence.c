@@ -401,10 +401,14 @@ BOOL CheckDigitsQ(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 	    if (digit >= 0) {
 	        switch (psBuffer[(*i)++]) {
 			    case 'h':
-					pwd->cursorMode = FALSE;
+					if (digit == 1) {
+						pwd->cursorMode = FALSE;
+					}
 					break;
 			    case 'l':
-					pwd->cursorMode = TRUE;
+					if (digit == 1) {
+						pwd->cursorMode = TRUE;
+					}
 				    break;
 				default:
 					(*i)--;
@@ -545,7 +549,27 @@ BOOL ProcessParen(CHAR* psBuffer, DWORD length, DWORD *i) {
 	}
 	return TRUE;
 }
-
+/*------------------------------------------------------------------------------
+-- FUNCTION:    ProcessFont
+--
+-- DATE:        Oct 17, 2010
+--
+-- REVISIONS:   (Date and Description)
+--
+-- DESIGNER:    Marcel Vangrootheest
+--
+-- PROGRAMMER:  Marcel Vangrootheest
+--
+-- INTERFACE:   VOID ProcessFont(HWND hWnd)
+--								hWnd		- Handle to the window
+--
+-- RETURNS:     VOID
+--
+-- NOTES:
+--              Process a Font change from a sequence ending in m.
+--				Changes color information based on color array defined in 
+--				Application.h. Style is set to 1 for underline.
+------------------------------------------------------------------------------*/
 VOID ProcessFont(HWND hWnd) {
 	UINT		i		= 0;
 	UINT		temp	= 0;
@@ -584,7 +608,7 @@ VOID ProcessFont(HWND hWnd) {
 				CUR_FG_COLOR = CUR_BG_COLOR;
 				break;
 			default: // set colors by value
-    				if (ESC_VAL(i) / 10 == 3)
+    			if (ESC_VAL(i) / 10 == 3)
 					CUR_FG_COLOR	= (ESC_VAL(i) % 10) + BRIGHTNESS;
 				if (ESC_VAL(i) / 10 == 4)
 					CUR_BG_COLOR	= (ESC_VAL(i) % 10) + BRIGHTNESS;
