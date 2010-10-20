@@ -127,7 +127,8 @@ VOID ProcessRead(HWND hWnd, CHAR* psReadBuf, DWORD dwBytesRead) {
         psCombined          = (CHAR*) malloc(sizeof(CHAR) * dwCombinedLength);
         strncpy(psCombined, pwd->psIncompleteEsc, pwd->dwIncompleteLength);
         strncpy((psCombined + pwd->dwIncompleteLength), psReadBuf, dwBytesRead);
-        pwd->psIncompleteEsc = NULL;
+        free(pwd->psIncompleteEsc);
+		pwd->psIncompleteEsc = NULL;
         ProcessEsc(hWnd, psCombined, dwCombinedLength);
         return;
     }
@@ -264,7 +265,7 @@ VOID Bell(HWND hWnd) {
         hdc = GetDC(hWnd);
         FillRect (hdc, &rect, CreateSolidBrush(RGB(255,255,255)));
         ReleaseDC(hWnd, hdc);
-        Sleep(50);
+        Sleep(30);
         InvalidateRect(hWnd, NULL, TRUE);
  
     } else if (pwd->iBellSetting == IDM_BELL_AUR) {
