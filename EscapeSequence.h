@@ -5,13 +5,13 @@
 #include <string.h>
 #include "TerminalEmulator.h"
 
-VOID    ProcessEsc(HWND hWnd, CHAR* psBuffer, DWORD dwBytesRead);
-BOOL	ProcessSquare(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i);
-BOOL	ProcessParen(CHAR* psBuffer, DWORD length, DWORD *i);
-DWORD	GetDigit(CHAR* psBuffer, DWORD length, DWORD *i);
 BOOL	CheckDigits(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i);
 BOOL	CheckDigitsQ(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i);
 BOOL	CheckDigitsSemi(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i);
+DWORD	GetDigit(CHAR* psBuffer, DWORD length, DWORD *i);
+VOID    ProcessEsc(HWND hWnd, CHAR* psBuffer, DWORD dwBytesRead);
 VOID    ProcessFont(HWND hWnd);
+BOOL	ProcessParen(CHAR* psBuffer, DWORD length, DWORD *i);
+BOOL	ProcessSquare(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i);
 
 #endif
