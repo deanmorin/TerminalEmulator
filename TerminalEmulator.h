@@ -89,6 +89,7 @@ typedef struct wndData {
     INT             cyWindowBottom;
     INT             iBellSetting;
 	BOOL			wordWrap;
+	BOOL			relOrigin;
 } WNDDATA, *PWNDDATA;
 
 /*---------------------------Function Prototypes------------------------------*/

@@ -153,6 +153,7 @@ VOID ProcessEsc(HWND hWnd, CHAR* psBuffer, DWORD length) {
 				return;
 			ProcessRead(hWnd, psBuffer + i, length - i);
 			return;
+		case 'I':
 		case 'M':   // move up one line, scrolling if necessary
 			MoveCursor(hWnd, X + 1, --Y + 1, TRUE);
 			if (i == length)
@@ -489,6 +490,8 @@ BOOL CheckDigitsQ(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
                         // DISPLAY_ERROR("Show cursor")
                     } else if (digit == 7) {
 						pwd->wordWrap = TRUE;
+					} else if (digit == 6) {
+						pwd->relOrigin = TRUE;
 					}
 					break;
 			    case 'l':
@@ -498,6 +501,8 @@ BOOL CheckDigitsQ(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
                         // DISPLAY_ERROR("Hide cursor")
                     } else if (digit == 7) {
 						pwd->wordWrap = FALSE;
+					} else if (digit == 6) {
+						pwd->relOrigin = FALSE;
 					}
 				    break;
 				case 'c':

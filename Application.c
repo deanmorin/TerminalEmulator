@@ -82,6 +82,7 @@ VOID InitTerminal(HWND hWnd) {
     CUR_FG_COLOR            = 7;
     WINDOW_BOTTOM           = LINES_PER_SCRN -1;
 	pwd->wordWrap			= FALSE;
+	pwd->relOrigin			= FALSE;
 
     CreateCaret(hWnd, NULL, PADDING, PADDING);
     ShowCaret(hWnd);
