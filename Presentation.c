@@ -244,8 +244,11 @@ VOID UpdateDisplayBuf(HWND hWnd, CHAR cCharacter) {
 	CHARACTER(X, Y).style	    = CUR_STYLE;
     
     if (X >= CHARS_PER_LINE - 1) { 
-        X = 0;
-        if (Y < LINES_PER_SCRN - 1) { 
+        if (pwd->wordWrap == FALSE) {
+			return;
+		}
+		X = 0;
+		if (Y < LINES_PER_SCRN - 1) { 
             Y++;
         } else {
             ScrollDown(hWnd);

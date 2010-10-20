@@ -187,6 +187,12 @@ VOID ProcessEsc(HWND hWnd, CHAR* psBuffer, DWORD length) {
 			}
 			i++;
 			ProcessRead(hWnd, psBuffer + i, length - i);
+		case 'c':
+			FormFeed(hWnd);
+			if (i == length)
+				return;
+			ProcessRead(hWnd, psBuffer + i, length - i);
+			return;
 		case '7':
 		case '8':
 			break;
@@ -475,14 +481,18 @@ BOOL CheckDigitsQ(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 						pwd->cursorMode = FALSE;
 					} else if (digit == 25) {
                         // DISPLAY_ERROR("Show cursor")
-                    }
+                    } else if (digit == 7) {
+						pwd->wordWrap = TRUE;
+					}
 					break;
 			    case 'l':
 					if (digit == 1) {
 						pwd->cursorMode = TRUE;
 					} else if (digit == 25) {
                         // DISPLAY_ERROR("Hide cursor")
-                    }
+                    } else if (digit == 7) {
+						pwd->wordWrap = FALSE;
+					}
 				    break;
 				default:
 					(*i)--;
