@@ -8,7 +8,6 @@
 --              VOID    InitTerminal(HWND);
 --              VOID    Paint(HWND);
 --              VOID    PerformMenuAction(HWND, WPARAM);
---              VOID    ShowTheCursor(HWND, BYTE)
 --              VOID    SetBell(HWND, INT);
 --
 --
@@ -67,17 +66,6 @@ VOID InitTerminal(HWND hWnd) {
     pwd->lpszCommName   = TEXT("COM3");
     SetWindowLongPtr(hWnd, 0, (LONG_PTR) pwd);
 
-    // set default comm settings
-    cc.dwSize = sizeof(COMMCONFIG);
-    GetCommConfig(pwd->hPort, &cc, &cc.dwSize);
-    FillMemory(&cc.dcb, sizeof(DCB), 0);
-    cc.dcb.DCBlength = sizeof(DCB);
-    BuildCommDCB((LPCWSTR)"96,N,8,1", &cc.dcb);
-
-    pwd->bConnected         = FALSE;
-    pwd->psIncompleteEsc    = NULL;
-    pwd->iBellSetting       = IDM_BELL_DIS;
-
     // get text attributes and store values into the window extra struct
     hdc = GetDC(hWnd);
 	pwd->displayBuf.hFont = (HFONT) GetStockObject(OEM_FIXED_FONT);
@@ -86,10 +74,13 @@ VOID InitTerminal(HWND hWnd) {
     ReleaseDC(hWnd, hdc);
 
     // initialize variables in PWDDATA struct to defaults
-    CHAR_WIDTH      = tm.tmAveCharWidth;
-    CHAR_HEIGHT     = tm.tmHeight;
-    CUR_FG_COLOR    = 7;
-    WINDOW_BOTTOM   = LINES_PER_SCRN -1;
+    pwd->bConnected         = FALSE;
+    pwd->psIncompleteEsc    = NULL;
+    pwd->iBellSetting       = IDM_BELL_DIS;
+    CHAR_WIDTH              = tm.tmAveCharWidth;
+    CHAR_HEIGHT             = tm.tmHeight;
+    CUR_FG_COLOR            = 7;
+    WINDOW_BOTTOM           = LINES_PER_SCRN -1;
 
     CreateCaret(hWnd, NULL, PADDING, PADDING);
     ShowCaret(hWnd);
@@ -116,6 +107,15 @@ VOID InitTerminal(HWND hWnd) {
                CHAR_WIDTH  * CHARS_PER_LINE + PADDING * 2 + lxDiff,
                CHAR_HEIGHT * LINES_PER_SCRN + PADDING * 2 + lyDiff,
                TRUE);
+
+    // set default comm settings
+    pwd->cc.dwSize = sizeof(COMMCONFIG);
+    Connect(hWnd);
+    GetCommConfig(pwd->hPort, &pwd->cc, &pwd->cc.dwSize);
+    Disconnect(hWnd);
+    FillMemory(&pwd->cc.dcb, sizeof(DCB), 0);
+    pwd->cc.dcb.DCBlength = sizeof(DCB);
+    BuildCommDCB((LPCWSTR)"96,N,8,1", &pwd->cc.dcb);
 }
 
 /*------------------------------------------------------------------------------
@@ -140,10 +140,10 @@ VOID InitTerminal(HWND hWnd) {
 ------------------------------------------------------------------------------*/
 VOID PerformMenuAction(HWND hWnd, WPARAM wParam) {
     
-    PWNDDATA   pwd = NULL;
-    COMMCONFIG  cc;
+    PWNDDATA    pwd     = NULL;
+    DWORD       dwSize  = 0;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
-
+    
     switch (LOWORD(wParam)) {
                 
         case IDM_CONNECT:       
@@ -169,11 +169,9 @@ VOID PerformMenuAction(HWND hWnd, WPARAM wParam) {
         case IDM_COM9:  SelectPort(hWnd, IDM_COM9);  return;
 
         case IDM_COMMSET:
-            if (!CommConfigDialog(pwd->lpszCommName, hWnd, &cc)) {
-                DISPLAY_ERROR("The comm settings dialogue failed");
-            }
-            if (!SetCommState(pwd->hPort, &cc.dcb)) {
-                DISPLAY_ERROR("The comm settings did not set properly.\nPlease ensure that the port exists");
+            
+            if (!CommConfigDialog(pwd->lpszCommName, hWnd, &pwd->cc)) {
+                DISPLAY_ERROR("The comm settings dialogue failed.\nThis port may not exist");
             }
 		    return;
 
@@ -217,7 +215,7 @@ VOID Paint(HWND hWnd) {
     UINT            tempbgColor = 0;
 	UINT            tempStyle	= 0;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
-    plf = (PLOGFONT) calloc(1, sizeof(LOGFONT));
+    //plf = (PLOGFONT) calloc(1, sizeof(LOGFONT));
 
     HideCaret(hWnd);
     hdc = BeginPaint(hWnd, &ps) ;
@@ -286,39 +284,4 @@ VOID SetBell(HWND hWnd, INT iSelected) {
     CheckMenuItem(GetMenu(hWnd), pwd->iBellSetting, MF_UNCHECKED);
     CheckMenuItem(GetMenu(hWnd), iSelected,         MF_CHECKED);
     pwd->iBellSetting = iSelected;
-}
-
-/*------------------------------------------------------------------------------
--- FUNCTION:    ShowTheCursor
---
--- DATE:        Oct 19, 2010
---
--- REVISIONS:   (Date and Description)
---
--- DESIGNER:    Dean Morin
---
--- PROGRAMMER:  Dean Morin
---
--- INTERFACE:   ShowTheCursor(HWND hWnd, BYTE flag)
---                          hWnd - the handle to the window
---                          flag - whether the window should be hidden or shown
---
--- RETURNS:     VOID.
---
--- NOTES:
---              Shows or hides the cursor, based on flag.
-------------------------------------------------------------------------------*/
-VOID ShowTheCursor(HWND hWnd, BYTE flag) {
-    static INT count = 0;
-    if (flag == CUR_HIDE) {
-        while (count > 0) {
-            HideCaret(hWnd);
-            count--;
-        }
-    } else {
-        while (count <= 0) {
-            ShowCaret(hWnd);
-            count++;
-        }
-    }
 }

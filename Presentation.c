@@ -279,8 +279,9 @@ VOID Bell(HWND hWnd) {
     PWNDDATA    pwd     = NULL;
     HDC         hdc     = {0};
     RECT        rect    = {0};
-    static TCHAR* beeps[3] = {TEXT("beep1.wav"), TEXT("beep2.wav"), 
-                              TEXT("beep3.wav")};
+    static TCHAR* beeps[6] = {TEXT("beep1.wav"), TEXT("beep2.wav"), 
+                              TEXT("beep3.wav"), TEXT("beep4.wav"),
+                              TEXT("beep5.wav"), TEXT("beep6.wav")};
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
     
     if (pwd->iBellSetting == IDM_BELL_VIS) {
@@ -289,11 +290,11 @@ VOID Bell(HWND hWnd) {
         hdc = GetDC(hWnd);
         FillRect (hdc, &rect, CreateSolidBrush(RGB(255,255,255)));
         ReleaseDC(hWnd, hdc);
-        Sleep(50);
+        Sleep(30);
         InvalidateRect(hWnd, NULL, TRUE);
  
     } else if (pwd->iBellSetting == IDM_BELL_AUR) {
-        PlaySound(beeps[rand() % 3], NULL, SND_FILENAME | SND_ASYNC);
+        PlaySound(beeps[rand() % 6], NULL, SND_FILENAME | SND_ASYNC);
     }
 }
 
@@ -540,6 +541,7 @@ VOID ScrollDown(HWND hWnd) {
     INT         j           = 0;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0); 
     pNewLine = (PLINE) malloc(sizeof(LINE));
+    free(ROW(i));
 
     for (i = WINDOW_TOP; i < WINDOW_BOTTOM; i++) {
         ROW(i) = ROW(i + 1);
@@ -580,6 +582,7 @@ VOID ScrollUp(HWND hWnd) {
     INT         j           = 0;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0); 
     pNewLine = (PLINE) malloc(sizeof(LINE));
+    free(ROW(WINDOW_BOTTOM));
     
     for (i = WINDOW_BOTTOM; i > WINDOW_TOP; i--) {
         ROW(i) = ROW(i - 1);

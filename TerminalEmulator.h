@@ -75,6 +75,7 @@ typedef struct displayBuf {
 typedef struct wndData {
     HANDLE          hPort;
     LPTSTR          lpszCommName;
+    COMMCONFIG      cc;
     BOOL            bConnected;
     HANDLE          hThread;
     DWORD           dwThreadid;
