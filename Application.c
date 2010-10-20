@@ -229,7 +229,6 @@ VOID Paint(HWND hWnd) {
 
     SetTextColor(hdc, TXT_COLOURS[CUR_FG_COLOR]);
     SetBkColor(hdc, TXT_COLOURS[CUR_BG_COLOR]);
-
                              
     for (i = 0; i < LINES_PER_SCRN; i++) {
         for (j = 0; j < CHARS_PER_LINE; j++) {
@@ -242,7 +241,7 @@ VOID Paint(HWND hWnd) {
 	            SetBkColor(hdc, TXT_COLOURS[CHARACTER(j, i).bgColor]);
                 tempbgColor = CHARACTER(j, i).bgColor;
             }/*
-            if (CHARACTER(j, i).style != CUR_STYLE) {
+            if (CHARACTER(j, i).style != tempStyle) {
 				GetObject(pwd->displayBuf.hFont, sizeof(LOGFONT), plf);
 				plf->lfUnderline = CHARACTER(j, i).style;
 				SelectObject(hdc, CreateFontIndirect(plf));
@@ -254,6 +253,7 @@ VOID Paint(HWND hWnd) {
                     (LPCWSTR) a, 1);
         }
     }
+	
     EndPaint(hWnd, &ps);
     SetCaretPos(X_POS, Y_POS);
     ShowCaret(hWnd);

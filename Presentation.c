@@ -408,29 +408,20 @@ VOID MoveCursor(HWND hWnd, INT cxCoord, INT cyCoord, BOOL bScroll) {
     } else {
         X = --cxCoord;
     }
-	if (pwd->relOrigin) {
-		if (cyCoord < WINDOW_TOP + 1) {
-			Y = WINDOW_TOP;
-			if (bScroll) {
-				ScrollUp(hWnd);
-			}
-		} 
-	} else {
-		if (cyCoord < 1) {
-			Y = WINDOW_TOP;
-			if (bScroll) {
-				ScrollUp(hWnd);
-			}
-		} 
-	}	
-	if (cyCoord > WINDOW_BOTTOM + 1) {
-		Y = WINDOW_BOTTOM;
-		if (bScroll) {
-			ScrollDown(hWnd);
-		}
-	} else {
-		Y = --cyCoord;
-	}
+
+    if (cyCoord < WINDOW_TOP + 1) {
+        Y = WINDOW_TOP;
+        if (bScroll) {
+            ScrollUp(hWnd);
+        }
+    } else if (cyCoord > WINDOW_BOTTOM + 1) {
+        Y = WINDOW_BOTTOM;
+        if (bScroll) {
+            ScrollDown(hWnd);
+        }
+    } else {
+        Y = --cyCoord;
+    }
 }
 
 /*------------------------------------------------------------------------------
