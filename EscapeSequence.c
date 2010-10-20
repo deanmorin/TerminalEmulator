@@ -247,7 +247,6 @@ DWORD GetDigit(CHAR* psBuffer, DWORD length, DWORD *i) {
 	strncpy(psDigits, psBuffer + *i, j);
 	digit = atoi(psDigits);
 	*i += j - 1;
-	free(psDigits);
 
 	return digit;
 }

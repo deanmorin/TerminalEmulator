@@ -146,7 +146,6 @@ VOID ProcessRead(HWND hWnd, CHAR* psReadBuf, DWORD dwBytesRead) {
         psCombined          = (CHAR*) malloc(sizeof(CHAR) * dwCombinedLength);
         strncpy(psCombined, pwd->psIncompleteEsc, pwd->dwIncompleteLength);
         strncpy((psCombined + pwd->dwIncompleteLength), psReadBuf, dwBytesRead);
-        free(pwd->psIncompleteEsc);
 		pwd->psIncompleteEsc = NULL;
         ProcessEsc(hWnd, psCombined, dwCombinedLength);
         return;
@@ -545,7 +544,7 @@ VOID ScrollDown(HWND hWnd) {
     INT         j           = 0;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0); 
     pNewLine = (PLINE) malloc(sizeof(LINE));
-    free(ROW(i));
+    free(ROW(WINDOW_TOP));
 
     for (i = WINDOW_TOP; i < WINDOW_BOTTOM; i++) {
         ROW(i) = ROW(i + 1);
