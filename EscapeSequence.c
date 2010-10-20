@@ -102,7 +102,7 @@ VOID ProcessEsc(HWND hWnd, CHAR* psBuffer, DWORD length) {
 				return;
 			ProcessRead(hWnd, psBuffer + i, length - i);
 			return;
-		case 'M':
+		case 'M':   // move up one line, scrolling if necessary
 			MoveCursor(hWnd, X + 1, --Y + 1, TRUE);
 			if (i == length)
 				return;
@@ -114,13 +114,14 @@ VOID ProcessEsc(HWND hWnd, CHAR* psBuffer, DWORD length) {
 				return;
 			ProcessRead(hWnd, psBuffer + i, length - i);
 			return;
-		case 'E':
-			LineFeed(hWnd);
+		case 'E':   // move down one line to 1st position, 
+                    // scrolling if necessary
+			MoveCursor(hWnd, 1, ++Y + 1, TRUE);          
 			if (i == length)
 				return;
 			ProcessRead(hWnd, psBuffer + i, length - i);
-			return;
-		case 'D':
+			return;	
+        case 'D':   // move down one line, scrolling if necessary
 			MoveCursor(hWnd, X + 1, ++Y + 1, TRUE);          
 			if (i == length)
 				return;

@@ -6,11 +6,10 @@
 --
 -- FUNCTIONS:
 --              VOID    InitTerminal(HWND);
---              LRESULT PerformMenuAction(HWND, UINT, WPARAM);
---              BOOL    ReadPort(HWND); 8*******************************************************
---              VOID    SelectPort(HWND, INT);
---              BOOL    StoreTextForRepaint(HWND, TCHAR[], COLORREF);
---              BOOL    WriteToPort(HWND, WPARAM);
+--              VOID    Paint(HWND);
+--              VOID    PerformMenuAction(HWND, UINT, WPARAM);
+--              VOID    ShowTheCursor(HWND, BYTE)
+--              VOID    SetBell(HWND, INT);
 --
 --
 -- DATE:        Oct 19, 2010
@@ -22,7 +21,9 @@
 -- PROGRAMMER:  Dean Morin
 --
 -- NOTES:
--- Contains application level functions for the Terminal Emulator program.
+-- Contains application level functions for the Terminal Emulator program. These
+-- are the functions that deal with the program display, as well as initializing
+-- the program.
 ------------------------------------------------------------------------------*/
 
 #include "Application.h"
@@ -108,7 +109,7 @@ VOID InitTerminal(HWND hWnd) {
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   LRESULT PerformMenuAction(HWND, UINT, WPARAM)
+-- INTERFACE:   VOID PerformMenuAction(HWND, UINT, WPARAM)
 --
 -- RETURNS:     VOID.
 --
@@ -163,7 +164,24 @@ VOID PerformMenuAction(HWND hWnd, UINT message, WPARAM wParam) {
     }
 }
 
-
+/*------------------------------------------------------------------------------
+-- FUNCTION:    Paint
+--
+-- DATE:        Oct 19, 2010
+--
+-- REVISIONS:   (Date and Description)
+--
+-- DESIGNER:    Dean Morin
+--
+-- PROGRAMMER:  Dean Morin
+--
+-- INTERFACE:   Paint(HWND)
+--
+-- RETURNS:     VOID.
+--
+-- NOTES:
+--              Repaints the display buffer.
+------------------------------------------------------------------------------*/
 VOID Paint(HWND hWnd) {
     PLOGFONT	    plf         = NULL;
     PWNDDATA        pwd         = NULL;
@@ -218,7 +236,51 @@ VOID Paint(HWND hWnd) {
     ShowCaret(hWnd);
 }
 
+/*------------------------------------------------------------------------------
+-- FUNCTION:    SetBell
+--
+-- DATE:        Oct 19, 2010
+--
+-- REVISIONS:   (Date and Description)
+--
+-- DESIGNER:    Dean Morin
+--
+-- PROGRAMMER:  Dean Morin
+--
+-- INTERFACE:   VOID SetBell(HWND, INT)
+--
+-- RETURNS:     VOID.
+--
+-- NOTES:
+--              Sets the bell mode based on the argument iSelect. It can be set
+--              to off, visual (flash), or aural (beeps) modes.
+------------------------------------------------------------------------------*/
+VOID SetBell(HWND hWnd, INT iSelected) {
+    PWNDDATA pwd;
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
+    CheckMenuItem(GetMenu(hWnd), pwd->iBellSetting, MF_UNCHECKED);
+    CheckMenuItem(GetMenu(hWnd), iSelected,         MF_CHECKED);
+    pwd->iBellSetting = iSelected;
+}
 
+/*------------------------------------------------------------------------------
+-- FUNCTION:    ShowTheCursor
+--
+-- DATE:        Oct 19, 2010
+--
+-- REVISIONS:   (Date and Description)
+--
+-- DESIGNER:    Dean Morin
+--
+-- PROGRAMMER:  Dean Morin
+--
+-- INTERFACE:   ShowTheCursor(HWND, BYTE)
+--
+-- RETURNS:     VOID.
+--
+-- NOTES:
+--              Shows or hides the cursor, based on flag.
+------------------------------------------------------------------------------*/
 VOID ShowTheCursor(HWND hWnd, BYTE flag) {
     static INT count = 0;
     if (flag == CUR_HIDE) {
@@ -232,13 +294,4 @@ VOID ShowTheCursor(HWND hWnd, BYTE flag) {
             count++;
         }
     }
-}
-
-
-VOID SetBell(HWND hWnd, INT iSelected) {
-    PWNDDATA pwd;
-    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
-    CheckMenuItem(GetMenu(hWnd), pwd->iBellSetting, MF_UNCHECKED);
-    CheckMenuItem(GetMenu(hWnd), iSelected,         MF_CHECKED);
-    pwd->iBellSetting = iSelected;
 }

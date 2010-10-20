@@ -1,3 +1,29 @@
+/*------------------------------------------------------------------------------
+-- SOURCE FILE:     Presentation.c - Contains all the OSI "presentation layer"
+--                                   functions for the Terminal Emulator.
+--
+-- PROGRAM:     Advanced Terminal Emulator Pro
+--
+-- FUNCTIONS:
+--              BOOL    Connect(HWND);
+--              VOID    Disconnect(HWND);
+--              VOID    SelectPort(HWND, INT);
+--
+--
+-- DATE:        Oct 19, 2010
+--
+-- REVISIONS:   (Date and Description)
+--
+-- DESIGNER:    Dean Morin
+--
+-- PROGRAMMER:  Dean Morin
+--
+-- NOTES:
+-- Contains presentation level functions for the Terminal Emulator program.
+-- These are the functions that process the characters both typed and received
+-- into meaningful data.
+------------------------------------------------------------------------------*/
+
 #include "Presentation.h"
 
 /*------------------------------------------------------------------------------
@@ -138,15 +164,24 @@ VOID ProcessRead(HWND hWnd, CHAR* psReadBuf, DWORD dwBytesRead) {
 ------------------------------------------------------------------------------*/
 VOID ProcessSpecialChar(HWND hWnd, CHAR cSpChar) {
     
+    PWNDDATA pwd = NULL;
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
+
     switch (cSpChar) {
-        case 0x07:  Bell(hWnd);             break;
-        case 0x08:  BackSpace(hWnd);        break;
-        case 0x09:  HorizontalTab(hWnd);    break;
-        case 0x0A:  LineFeed(hWnd);         break;
-        case 0x0B:  VerticalTab(hWnd);      break;
-        case 0x0C:  FormFeed(hWnd);         break;
-        case 0x0D:  CarraigeReturn(hWnd);   break;
-        default:                            break;  // ignore character
+        // bell
+        case 0x07:  Bell(hWnd);                             break;
+        // backspace
+        case 0x08:  MoveCursor(hWnd, X, Y + 1, FALSE);      break;
+        // horizontal tab
+        case 0x09:  HorizontalTab(hWnd);                    break;
+        // line feed
+        case 0x0A:  MoveCursor(hWnd, 1, Y + 2, TRUE);       break;
+        // vertical tab
+        case 0x0B:  MoveCursor(hWnd, X + 1, Y + 2, TRUE);   break;
+        // form feed
+        case 0x0C:  FormFeed(hWnd);                         break;
+        // carraige return
+        case 0x0D:  MoveCursor(hWnd, 1, Y + 1, FALSE);      break;
     }
 }
 
@@ -166,8 +201,7 @@ VOID ProcessSpecialChar(HWND hWnd, CHAR cSpChar) {
 -- RETURNS:     VOID.
 --
 -- NOTES:
---              Adds cCharacter to the display buffer and updates the cursor
---              position.
+--              Adds cCharacter to the display buffer.
 ------------------------------------------------------------------------------*/
 VOID UpdateDisplayBuf(HWND hWnd, CHAR cCharacter) {
     
@@ -196,7 +230,26 @@ VOID UpdateDisplayBuf(HWND hWnd, CHAR cCharacter) {
     }
 }
 
-
+/*------------------------------------------------------------------------------
+-- FUNCTION:    Bell
+--
+-- DATE:        Oct 19, 2010
+--
+-- REVISIONS:   (Date and Description)
+--
+-- DESIGNER:    Dean Morin
+--
+-- PROGRAMMER:  Dean Morin
+--
+-- INTERFACE:   VOID Bell(HWND)
+--
+-- RETURNS:     VOID.
+--
+-- NOTES:
+--              Processes a bell character based on the value of iBellSetting
+--              in the PWNDATA structure. The bell is ignored by default, and
+--              can be set to flash, or to play a sound.
+------------------------------------------------------------------------------*/
 VOID Bell(HWND hWnd) {
     PWNDDATA    pwd     = NULL;
     HDC         hdc     = {0};
@@ -219,14 +272,24 @@ VOID Bell(HWND hWnd) {
     }
 }
 
-
-VOID BackSpace(HWND hWnd) {
-    PWNDDATA pwd = NULL;
-    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
-    X--;
-}
-
-
+/*------------------------------------------------------------------------------
+-- FUNCTION:    HorizontalTab
+--
+-- DATE:        Oct 19, 2010
+--
+-- REVISIONS:   (Date and Description)
+--
+-- DESIGNER:    Dean Morin
+--
+-- PROGRAMMER:  Dean Morin
+--
+-- INTERFACE:   VOID HorizontalTab(HWND)
+--
+-- RETURNS:     VOID.
+--
+-- NOTES:
+--              Moves the cursor to the next tab on the line.
+------------------------------------------------------------------------------*/
 VOID HorizontalTab(HWND hWnd) {
     PWNDDATA pwd = NULL;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);   
@@ -237,34 +300,25 @@ VOID HorizontalTab(HWND hWnd) {
     }
 }
 
-
-VOID LineFeed(HWND hWnd) {   
-    PWNDDATA pwd = NULL;
-    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0); 
-
-    X = 0;
-    if (Y < WINDOW_BOTTOM) {
-        Y++;
-    } else {
-        ScrollDown(hWnd);
-    }
-}
-
-
-VOID VerticalTab(HWND hWnd) { 
-    PWNDDATA    pwd         = NULL;
-    UINT        i           = 0;
-    UINT        j           = 0;
-    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);     
-    
-    if (Y < WINDOW_BOTTOM) { 
-        Y++;
-    } else {
-        ScrollDown(hWnd);
-    }
-}
-
-
+/*------------------------------------------------------------------------------
+-- FUNCTION:    FormFeed
+--
+-- DATE:        Oct 19, 2010
+--
+-- REVISIONS:   (Date and Description)
+--
+-- DESIGNER:    Dean Morin
+--
+-- PROGRAMMER:  Dean Morin
+--
+-- INTERFACE:   VOID FormFeed(HWND)
+--
+-- RETURNS:     VOID.
+--
+-- NOTES:
+--              Clears the screen and moves the cursor to 1, 1 (0, 0 according
+--              to the display buffer).
+------------------------------------------------------------------------------*/
 VOID FormFeed(HWND hWnd) { 
     PWNDDATA    pwd = NULL;
     UINT        i   = 0;
@@ -278,16 +332,31 @@ VOID FormFeed(HWND hWnd) {
             CHARACTER(j, i).style       = 0;
          }
     }
-}
-
-
-VOID CarraigeReturn(HWND hWnd) {
-    PWNDDATA pwd = NULL;
-    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);    
     X = 0;
+    Y = 0;
 }
 
-
+/*------------------------------------------------------------------------------
+-- FUNCTION:    MoveCursor
+--
+-- DATE:        Oct 19, 2010
+--
+-- REVISIONS:   (Date and Description)
+--
+-- DESIGNER:    Dean Morin
+--
+-- PROGRAMMER:  Dean Morin
+--
+-- INTERFACE:   VOID MoveCursor(HWND, INT, INT, BOOL)
+--
+-- RETURNS:     VOID.
+--
+-- NOTES:
+--              Moves the cursor to the specified position. Note, the position
+--              passed in the arguments is screen position ((1, 1) origin).
+--              If bScroll is true, then the screen will scroll when the top
+--              of bottom lines of the window are reached.
+------------------------------------------------------------------------------*/
 VOID MoveCursor(HWND hWnd, INT cxCoord, INT cyCoord, BOOL bScroll) {
     PWNDDATA pwd = NULL;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
@@ -315,7 +384,25 @@ VOID MoveCursor(HWND hWnd, INT cxCoord, INT cyCoord, BOOL bScroll) {
     }
 }
 
-
+/*------------------------------------------------------------------------------
+-- FUNCTION:    ClearLine
+--
+-- DATE:        Oct 19, 2010
+--
+-- REVISIONS:   (Date and Description)
+--
+-- DESIGNER:    Dean Morin
+--
+-- PROGRAMMER:  Dean Morin
+--
+-- INTERFACE:   VOID ClearLine(HWND, UINT, UINT, INT)
+--
+-- RETURNS:     VOID.
+--
+-- NOTES:
+--              Clears a line in the direction specified by iDirection (left or
+--              right). The character under the cursor will be cleared as well.
+------------------------------------------------------------------------------*/
 VOID ClearLine(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection) {
     PWNDDATA    pwd = NULL;
     UINT        i   = 0;
@@ -332,6 +419,26 @@ VOID ClearLine(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection) {
     }
 }
 
+/*------------------------------------------------------------------------------
+-- FUNCTION:    ClearScreen
+--
+-- DATE:        Oct 19, 2010
+--
+-- REVISIONS:   (Date and Description)
+--
+-- DESIGNER:    Dean Morin
+--
+-- PROGRAMMER:  Dean Morin
+--
+-- INTERFACE:   VOID ClearScreen(HWND, UINT, UINT, INT)
+--
+-- RETURNS:     VOID.
+--
+-- NOTES:
+--              Clears the screen in the direction specified by iDirection (all
+--              preceding characters, or all following characters). The
+--              character under the cursor will be cleared as well.
+------------------------------------------------------------------------------*/
 VOID ClearScreen(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection) {
     PWNDDATA    pwd = NULL;
     UINT        i   = 0;
@@ -351,6 +458,26 @@ VOID ClearScreen(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection) {
     }
 }
 
+/*------------------------------------------------------------------------------
+-- FUNCTION:    ScrollDown
+--
+-- DATE:        Oct 19, 2010
+--
+-- REVISIONS:   (Date and Description)
+--
+-- DESIGNER:    Dean Morin
+--
+-- PROGRAMMER:  Dean Morin
+--
+-- INTERFACE:   VOID ScrollDown(HWND)
+--
+-- RETURNS:     VOID.
+--
+-- NOTES:
+--              "Scrolls down" one line. It moves every line on the screen up
+--              one position, deleting the top line, and creating a new, blank
+--              bottom line.
+------------------------------------------------------------------------------*/
 VOID ScrollDown(HWND hWnd) {
     PWNDDATA    pwd         = NULL;
     PLINE       pNewLine    = NULL;
@@ -370,6 +497,26 @@ VOID ScrollDown(HWND hWnd) {
     }
 }
 
+/*------------------------------------------------------------------------------
+-- FUNCTION:    ScrollUp
+--
+-- DATE:        Oct 19, 2010
+--
+-- REVISIONS:   (Date and Description)
+--
+-- DESIGNER:    Dean Morin
+--
+-- PROGRAMMER:  Dean Morin
+--
+-- INTERFACE:   VOID ScrollUp(HWND)
+--
+-- RETURNS:     VOID.
+--
+-- NOTES:
+--              "Scrolls up" one line. It moves every line on the screen down
+--              one position, deleting the bottom line, and creating a new, 
+--              blank top line.
+------------------------------------------------------------------------------*/
 VOID ScrollUp(HWND hWnd) {
     PWNDDATA    pwd         = NULL;
     PLINE       pNewLine    = NULL;
@@ -389,6 +536,26 @@ VOID ScrollUp(HWND hWnd) {
     }
 }
 
+/*------------------------------------------------------------------------------
+-- FUNCTION:    SetScrollRegion
+--
+-- DATE:        Oct 19, 2010
+--
+-- REVISIONS:   (Date and Description)
+--
+-- DESIGNER:    Dean Morin
+--
+-- PROGRAMMER:  Dean Morin
+--
+-- INTERFACE:   VOID SetScrollRegion(HWND, INT, INT)
+--
+-- RETURNS:     VOID.
+--
+-- NOTES:
+--              Sets the top and bottom lines for the scrollable region. This
+--              allows the appearance of scrolling for one section of lines,
+--              whereas the other lines will remain motionless.
+------------------------------------------------------------------------------*/
 VOID SetScrollRegion(HWND hWnd, INT cyTop, INT cyBottom) {
     PWNDDATA pwd = NULL;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0); 

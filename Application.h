@@ -19,5 +19,6 @@ VOID    InitTerminal(HWND hWnd);
 VOID    Paint(HWND hWnd);
 VOID    PerformMenuAction(HWND hWnd, UINT message, WPARAM wParam);
 VOID    SetBell(HWND hWnd, INT iSelected);
+VOID    ShowTheCursor(HWND hWnd, BYTE flag);
 
 #endif

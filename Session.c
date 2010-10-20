@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------------
--- SOURCE FILE:     Session.c   - Contains all the OSI "presentation layer"
+-- SOURCE FILE:     Session.c   - Contains all the OSI "session layer"
 --                                functions for the Terminal Emulator.
 --
 -- PROGRAM:     Advanced Terminal Emulator Pro
@@ -19,7 +19,9 @@
 -- PROGRAMMER:  Dean Morin
 --
 -- NOTES:
--- Contains session level functions for the Terminal Emulator program.
+-- Contains session level functions for the Terminal Emulator program. These
+-- are the functions that deal with setting up connections and configuring the
+-- port.
 ------------------------------------------------------------------------------*/
 
 #include "Session.h"
