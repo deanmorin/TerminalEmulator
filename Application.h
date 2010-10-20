@@ -17,7 +17,7 @@ static const COLORREF TXT_COLOURS[16] = {RGB(0,0,0),		RGB(128,0,0),
 
 VOID    InitTerminal(HWND hWnd);
 VOID    Paint(HWND hWnd);
-VOID    PerformMenuAction(HWND hWnd, UINT message, WPARAM wParam);
+VOID    PerformMenuAction(HWND hWnd, WPARAM wParam);
 VOID    SetBell(HWND hWnd, INT iSelected);
 VOID    ShowTheCursor(HWND hWnd, BYTE flag);
 

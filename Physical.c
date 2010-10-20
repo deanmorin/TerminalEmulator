@@ -38,7 +38,8 @@
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   DWORD WINAPI ReadThreadProc(HWND)
+-- INTERFACE:   DWORD WINAPI ReadThreadProc(HWND hWnd)
+--                          hWnd - the handle to the window
 --
 -- RETURNS:     0 because threads are required to return a DWORD.
 --
@@ -108,7 +109,8 @@ DWORD WINAPI ReadThreadProc(HWND hWnd) {
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   VOID ProcessCommError(HANDLE)
+-- INTERFACE:   VOID ProcessCommError(HANDLE hPort)
+--                          hPort - the handle to the open port
 --
 -- RETURNS:     VOID.
 --

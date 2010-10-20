@@ -5,6 +5,6 @@
 
 BOOL    Connect(HWND hWnd);
 VOID    Disconnect(HWND hWnd);
-VOID    SelectPort(HWND hWnd, INT selected);
+VOID    SelectPort(HWND hWnd, INT iSelected);
 
 #endif

@@ -24,7 +24,7 @@
 
 #include "TerminalEmulator.h"
 
-/*------------------------------------------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
 -- FUNCTION:    WinMain
 --
 -- DATE:        Oct 18, 2010
@@ -35,7 +35,13 @@
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
+-- INTERFACE:   int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, 
+                                   PSTR szCmdLine, int iCmdShow)
+--                          hInstance       - a handle to the current instance
+--                          hPrevInstanc    - a handle to the previous instance
+--                          szCmdLine       - the command line arguments
+--                          iCmdShow        - specifies how the window should 
+--                                            be shown
 --
 -- RETURNS:     If the function succeeds, terminating when it receives a WM_QUIT 
 --              message, it should return the exit value contained in that 
@@ -46,7 +52,7 @@
 --              WinMain is the conventional name used for the application entry
 --              point. The standard message loop has been modified to poll the
 --              an open serial port if there are no messages on the queue.o
-----------------------------------------------------------------------------------------------------------------------*/
+------------------------------------------------------------------------------*/
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    PSTR szCmdLine, int iCmdShow) {
                 
@@ -103,7 +109,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   LRESULT CALLBACK WndProc(HWND, UNIT, WPARAM LPARAM)
+-- INTERFACE:   LRESULT CALLBACK WndProc(HWND hWnd, UNIT message,
+--                                       WPARAM wParam, LPARAM)
+--                          hWnd    - the handle to the window
+--                          message - the message
+--                          wParam  - contents vary based on the message
+                            lParam  - contents vary based on the message
 --
 -- RETURNS:     The return value is the result of the message processing and 
 --              depends on the message sent.
@@ -164,7 +175,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
             return 0;
 
         case WM_COMMAND:
-            PerformMenuAction(hWnd, message, wParam);
+            PerformMenuAction(hWnd, wParam);
             return 0;
 
         case WM_DESTROY:

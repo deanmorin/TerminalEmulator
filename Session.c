@@ -37,7 +37,8 @@
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   Connect(HWND)
+-- INTERFACE:   Connect(HWND hWnd)
+--                          hWnd - the handle to the window
 --
 -- RETURNS:     True if the serial connection was succefully made.
 --
@@ -131,7 +132,8 @@ BOOL Connect(HWND hWnd) {
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   Disconnect(HWND)
+-- INTERFACE:   Disconnect(HWND hWnd)
+--                          hWnd - the handle to the window
 --
 -- RETURNS:     VOID.
 --
@@ -186,7 +188,10 @@ VOID Disconnect(HWND hWnd) {
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   VOID SelectPort(HWND, INT)
+-- INTERFACE:   VOID SelectPort(HWND hWnd, INT iSelected)
+--                          hWnd        - the handle to the window
+--                          iSelected   - the com port that was selected in the
+--                                        menu
 --
 -- RETURNS:     VOID.
 --
@@ -195,7 +200,7 @@ VOID Disconnect(HWND hWnd) {
 --              port, and it changes the actual port by renaming lpszCommName.
                 The INT argument is the menu item that was selected.
 ------------------------------------------------------------------------------*/
-VOID SelectPort(HWND hWnd, INT selected) {
+VOID SelectPort(HWND hWnd, INT iSelected) {
     
     PWNDDATA pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
 
@@ -203,9 +208,9 @@ VOID SelectPort(HWND hWnd, INT selected) {
     CheckMenuItem(GetMenu(hWnd),
                  (IDM_COM1 - 1) + (prevPortNo - ASCII_DIGIT_OFFSET),
                  MF_UNCHECKED);
-    CheckMenuItem(GetMenu(hWnd), selected, MF_CHECKED);
+    CheckMenuItem(GetMenu(hWnd), iSelected, MF_CHECKED);
 
-    switch (selected) {
+    switch (iSelected) {
 
         case IDM_COM1:  pwd->lpszCommName = TEXT("COM1");   return;
         case IDM_COM2:  pwd->lpszCommName = TEXT("COM2");   return;       

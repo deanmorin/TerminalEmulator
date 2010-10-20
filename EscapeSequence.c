@@ -1,3 +1,54 @@
+/*------------------------------------------------------------------------------
+-- SOURCE FILE:     EscapeSequence.c - This contains all the functions necessary
+--                                     to parse an escaped control sequence.
+--
+-- PROGRAM:     Advanced Terminal Emulator Pro
+--
+-- FUNCTIONS:
+--              BOOL	CheckDigits(HWND hWnd, CHAR* psBuffer, 
+--                                  DWORD length, DWORD *i);
+--              BOOL	CheckDigitsQ(HWND hWnd, CHAR* psBuffer, 
+--                                   DWORD length, DWORD *i);
+--              BOOL	CheckDigitsSemi(HWND hWnd, CHAR* psBuffer, 
+--                                      DWORD length, DWORD *i);
+--              DWORD	GetDigit(CHAR* psBuffer, DWORD length, DWORD *i);
+--              VOID    ProcessEsc(HWND hWnd, CHAR* psBuffer, 
+--                                 DWORD dwBytesRead);
+--              VOID    ProcessFont(HWND hWnd);
+--              BOOL	ProcessParen(CHAR* psBuffer, DWORD length, DWORD *i);
+--              BOOL	ProcessSquare(HWND hWnd, CHAR* psBuffer, 
+--                                    DWORD length, DWORD *i);
+--
+--
+-- DATE:        Oct 19, 2010
+--
+-- REVISIONS:   (Date and Description)
+--
+-- DESIGNER:    Marcel Vangrootheest
+--
+-- PROGRAMMER:  Marcel Vangrootheest
+--
+-- NOTES:
+-- Receives a buffer from a port read and processes it. Displayable characters
+-- and special characters such as line feed are handled character by character.
+-- If an escape character is received, the buffer is stepped through until one
+-- of three things happens:
+--
+--      1. A valid sequence is completed:
+--          The remainder of the buffer is then once again processed character
+--          by character.
+--
+--      2. An sequence is found that cannot be valid:
+--          In this case, the buffer starting at the character that made the 
+--          sequence invalid is processed character by character. For example,
+--          if the buffer contains " ESC[0;$H ", then $H would be added to the
+--          display buffer and displayed on screen.
+--
+--      3. The buffer contains a partial sequence:
+--          The incomplete sequence is stored in the window extra structure, and
+--          the next buffer from a port read is appended to the end of it.
+------------------------------------------------------------------------------*/
+
 #include "EscapeSequence.h"
 
 /*------------------------------------------------------------------------------

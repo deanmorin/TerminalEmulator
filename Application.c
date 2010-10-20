@@ -7,7 +7,7 @@
 -- FUNCTIONS:
 --              VOID    InitTerminal(HWND);
 --              VOID    Paint(HWND);
---              VOID    PerformMenuAction(HWND, UINT, WPARAM);
+--              VOID    PerformMenuAction(HWND, WPARAM);
 --              VOID    ShowTheCursor(HWND, BYTE)
 --              VOID    SetBell(HWND, INT);
 --
@@ -27,8 +27,25 @@
 ------------------------------------------------------------------------------*/
 
 #include "Application.h"
-
-
+/*------------------------------------------------------------------------------
+-- FUNCTION:    InitTerminal
+--
+-- DATE:        Oct 19, 2010
+--
+-- REVISIONS:   (Date and Description)
+--
+-- DESIGNER:    Dean Morin
+--
+-- PROGRAMMER:  Dean Morin
+--
+-- INTERFACE:   VOID InitTerminal(HWND hWnd)
+--                          hWnd- the handle to the window
+--
+-- RETURNS:     VOID.
+--
+-- NOTES:
+--              Initializes the terminal to its default state.
+------------------------------------------------------------------------------*/
 VOID InitTerminal(HWND hWnd) {
 
     PWNDDATA    pwd         = {0};
@@ -43,6 +60,7 @@ VOID InitTerminal(HWND hWnd) {
     LONG        lxDiff      = 0;
     LONG        lyDiff      = 0;
 
+    // create PWNDATA struct and stor it as the window extra
     if ((pwd = (PWNDDATA) calloc(1, sizeof(WNDDATA))) == 0) {
         DISPLAY_ERROR("Error allocating memory for WNDDATA structure");
     }
@@ -67,6 +85,7 @@ VOID InitTerminal(HWND hWnd) {
     GetTextMetrics(hdc, &tm);
     ReleaseDC(hWnd, hdc);
 
+    // initialize variables in PWDDATA struct to defaults
     CHAR_WIDTH      = tm.tmAveCharWidth;
     CHAR_HEIGHT     = tm.tmHeight;
     CUR_FG_COLOR    = 7;
@@ -83,6 +102,7 @@ VOID InitTerminal(HWND hWnd) {
             CHARACTER(j, i).fgColor     = 7;
         }
     }
+    // set the window size based off of the font size
     GetWindowRect(hWnd, &windowRect);
     GetClientRect(hWnd, &clientRect);
 
@@ -109,14 +129,16 @@ VOID InitTerminal(HWND hWnd) {
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   VOID PerformMenuAction(HWND, UINT, WPARAM)
+-- INTERFACE:   VOID PerformMenuAction(HWND hWnd, WPARAM wParam)
+--                          hWnd    - the handle to the window
+--                          wParam  - contains the menu item that was selected
 --
 -- RETURNS:     VOID.
 --
 -- NOTES:
 --              Responds to a user's selection of a menu item.
 ------------------------------------------------------------------------------*/
-VOID PerformMenuAction(HWND hWnd, UINT message, WPARAM wParam) {
+VOID PerformMenuAction(HWND hWnd, WPARAM wParam) {
     
     PWNDDATA   pwd = NULL;
     COMMCONFIG  cc;
@@ -175,7 +197,8 @@ VOID PerformMenuAction(HWND hWnd, UINT message, WPARAM wParam) {
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   Paint(HWND)
+-- INTERFACE:   Paint(HWND hWnd)
+--                          hWnd - the handle to the window
 --
 -- RETURNS:     VOID.
 --
@@ -247,7 +270,9 @@ VOID Paint(HWND hWnd) {
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   VOID SetBell(HWND, INT)
+-- INTERFACE:   VOID SetBell(HWND hWnd, INT iSelected)
+--                          hWnd        - the handle to the window
+--                          iSelected   - the bell mode to use
 --
 -- RETURNS:     VOID.
 --
@@ -274,7 +299,9 @@ VOID SetBell(HWND hWnd, INT iSelected) {
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   ShowTheCursor(HWND, BYTE)
+-- INTERFACE:   ShowTheCursor(HWND hWnd, BYTE flag)
+--                          hWnd - the handle to the window
+--                          flag - whether the window should be hidden or shown
 --
 -- RETURNS:     VOID.
 --

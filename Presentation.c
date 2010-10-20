@@ -5,9 +5,24 @@
 -- PROGRAM:     Advanced Terminal Emulator Pro
 --
 -- FUNCTIONS:
---              BOOL    Connect(HWND);
---              VOID    Disconnect(HWND);
---              VOID    SelectPort(HWND, INT);
+--              BOOL    ProcessWrite(HWND hWnd, WPARAM wParam, 
+--                                   BOOL bNonCharKey);
+--              VOID    ProcessRead(HWND hWnd, CHAR psReadBuf[], 
+--                                  DWORD dwBytesRead);
+--              VOID    ProcessSpecialChar(HWND hWnd, CHAR cSpChar);
+--              VOID    UpdateDisplayBuf(HWND hWnd, CHAR cCharacter);
+--              VOID    Bell(HWND hWnd);
+--              VOID    HorizontalTab(HWND hWnd);
+--              VOID    FormFeed(HWND hWnd);
+--              VOID    MoveCursor(HWND hWnd, INT cxCoord, INT cyCoord, 
+--                                 BOOL bScroll);
+--              VOID    ClearLine(HWND hWnd, UINT cxCoord, UINT cyCoord, 
+--                                INT iDirection);
+--              VOID    ClearScreen(HWND hWnd, UINT cxCoord, UINT cyCoord, 
+--                                  INT iDirection);
+--              VOID    ScrollDown(HWND hWnd);
+--              VOID    ScrollUp(HWND hWnd);
+--              VOID    SetScrollRegion(HWND hWnd, INT cyTop, INT cyBottom); 
 --
 --
 -- DATE:        Oct 19, 2010
@@ -37,7 +52,11 @@
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   BOOL ProcessWrite(HWND, WPARAM, BOOL)
+-- INTERFACE:   BOOL ProcessWrite(HWND hWnd, WPARAM wParam, BOOL bNonCharKey)
+--                          hWnd        - the handle to the window
+--                          wParam      - the key that was pressed
+--                          bNonCharKey - true if the key pressed was not a
+--                                        standard displayable character
 --
 -- RETURNS:     True if the port write was successful.
 --
@@ -155,7 +174,10 @@ VOID ProcessRead(HWND hWnd, CHAR* psReadBuf, DWORD dwBytesRead) {
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   BOOL ProcessSpecialChar(HWND, CHAR)
+-- INTERFACE:   BOOL ProcessSpecialChar(HWND hWnd, CHAR cSpChar)
+--                          hWnd    - the handle to the window
+--                          cSpChar - a special character that might need
+--                                    processing
 --
 -- RETURNS:     VOID.
 --
@@ -196,7 +218,9 @@ VOID ProcessSpecialChar(HWND hWnd, CHAR cSpChar) {
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   VOID UpdateDisplayBuf(HWND, CHAR)
+-- INTERFACE:   VOID UpdateDisplayBuf(HWND hWnd, CHAR cCharacter)
+--                          hWnd        - the handle to the window
+--                          cCharacter  - the character to add to the buffer
 --
 -- RETURNS:     VOID.
 --
@@ -241,7 +265,8 @@ VOID UpdateDisplayBuf(HWND hWnd, CHAR cCharacter) {
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   VOID Bell(HWND)
+-- INTERFACE:   VOID Bell(HWND hWnd)
+--                          hWnd - the handle to the window
 --
 -- RETURNS:     VOID.
 --
@@ -283,7 +308,8 @@ VOID Bell(HWND hWnd) {
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   VOID HorizontalTab(HWND)
+-- INTERFACE:   VOID HorizontalTab(HWND hWnd)
+--                          hWnd - the handle to the window
 --
 -- RETURNS:     VOID.
 --
@@ -311,7 +337,8 @@ VOID HorizontalTab(HWND hWnd) {
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   VOID FormFeed(HWND)
+-- INTERFACE:   VOID FormFeed(HWND hWnd)
+--                          hWnd - the handle to the window
 --
 -- RETURNS:     VOID.
 --
@@ -347,13 +374,22 @@ VOID FormFeed(HWND hWnd) {
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   VOID MoveCursor(HWND, INT, INT, BOOL)
+-- INTERFACE:   VOID MoveCursor(HWND hWnd, UINT cxCoord, UINT cyCoord, 
+--                              BOOL bScroll)
+--                          hWnd        - the handle to the window
+--                          cxCoord     - the x coordinate to move the cursor to
+--                                        (1,1) origin
+--                          cyCoord     - the y coordinate to move the cursor to
+--                                        (1,1) origin
+--                          bScroll     - whether or not to scroll when the
+--                                        y coordinate is beyond the bounds of
+--                                        screen
 --
 -- RETURNS:     VOID.
 --
 -- NOTES:
---              Moves the cursor to the specified position. Note, the position
---              passed in the arguments is screen position ((1, 1) origin).
+--              Moves the cursor to the specified position. The position passed 
+--              in the arguments is based screen coordinates(1,1) origin).
 --              If bScroll is true, then the screen will scroll when the top
 --              of bottom lines of the window are reached.
 ------------------------------------------------------------------------------*/
@@ -395,13 +431,22 @@ VOID MoveCursor(HWND hWnd, INT cxCoord, INT cyCoord, BOOL bScroll) {
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   VOID ClearLine(HWND, UINT, UINT, INT)
+-- INTERFACE:   VOID ClearLine(HWND hWnd, UINT cxCoord, UINT cyCoord, 
+--                             INT iDirection)
+--                          hWnd        - the handle to the window
+--                          cxCoord     - the row of the first 
+--                                        character to clear - (0,0) origin
+--                          cyCoord     - the line of the first
+--                                        character to clear - (0,0) origin
+--                          iDirection  - the direction (left or right) to clear
+--                                        the line
 --
 -- RETURNS:     VOID.
 --
 -- NOTES:
 --              Clears a line in the direction specified by iDirection (left or
 --              right). The character under the cursor will be cleared as well.
+--              Please note that cxCoord and cyCoord use a (0,0) origin.
 ------------------------------------------------------------------------------*/
 VOID ClearLine(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection) {
     PWNDDATA    pwd = NULL;
@@ -430,14 +475,23 @@ VOID ClearLine(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection) {
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   VOID ClearScreen(HWND, UINT, UINT, INT)
+-- INTERFACE:   VOID ClearScreen(HWND hWnd, UINT cxCoord, UINT cyCoord, 
+--                               INT iDirection)
+--                          hWnd        - the handle to the window
+--                          cxCoord     - the row of the first 
+--                                        character to clear - (0,0) origin
+--                          cyCoord     - the line of the first
+--                                        character to clear - (0,0) origin
+--                          iDirection  - the direction (up or down) to clear
+--                                        the screen
 --
 -- RETURNS:     VOID.
 --
 -- NOTES:
 --              Clears the screen in the direction specified by iDirection (all
 --              preceding characters, or all following characters). The
---              character under the cursor will be cleared as well.
+--              character under the cursor will be cleared as well. Please note
+--              that cxCoord and cyCoord use a (0,0) origin.
 ------------------------------------------------------------------------------*/
 VOID ClearScreen(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection) {
     PWNDDATA    pwd = NULL;
@@ -469,7 +523,8 @@ VOID ClearScreen(HWND hWnd, UINT cxCoord, UINT cyCoord, INT iDirection) {
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   VOID ScrollDown(HWND)
+-- INTERFACE:   VOID ScrollDown(HWND hWnd)
+--                          hWnd - the handle to the window
 --
 -- RETURNS:     VOID.
 --
@@ -508,7 +563,8 @@ VOID ScrollDown(HWND hWnd) {
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   VOID ScrollUp(HWND)
+-- INTERFACE:   VOID ScrollUp(HWND hWnd)
+--                          hWnd - the handle to the window
 --
 -- RETURNS:     VOID.
 --
@@ -547,7 +603,10 @@ VOID ScrollUp(HWND hWnd) {
 --
 -- PROGRAMMER:  Dean Morin
 --
--- INTERFACE:   VOID SetScrollRegion(HWND, INT, INT)
+-- INTERFACE:   VOID SetScrollRegion(HWND hWnd, INT cyTop, INT cyBottom)
+--                          hWnd     - the handle to the window
+--                          cyTop    - the top line of the new scroll range
+--                          cyBottom - the bottom line of the new scroll range
 --
 -- RETURNS:     VOID.
 --
