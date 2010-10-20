@@ -194,12 +194,29 @@ VOID UpdateDisplayBuf(HWND hWnd, CHAR cCharacter) {
     } else {
         X++;
     }
-    SetCaretPos(X_POS + PADDING, Y_POS + PADDING); 
 }
 
 
 VOID Bell(HWND hWnd) {
-    // this function does nothing on grounds of good taste
+    PWNDDATA    pwd     = NULL;
+    HDC         hdc     = {0};
+    RECT        rect    = {0};
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
+    
+    if (pwd->iBellSetting == IDM_BELL_VIS) {
+        GetClientRect(hWnd, &rect);
+        SetRect (&rect, rect.top, rect.left, rect.right, rect.bottom);
+        hdc = GetDC(hWnd);
+        FillRect (hdc, &rect, CreateSolidBrush(RGB(255,255,255)));
+        ReleaseDC(hWnd, hdc);
+        Sleep(50);
+        InvalidateRect(hWnd, NULL, TRUE);
+ 
+    } else if (pwd->iBellSetting == IDM_BELL_AUR) {
+        /*rand();
+        PlaySound(TEXT("beep.wav"), NULL, SND_FILENAME | SND_ASYNC);
+        */
+    }
 }
 
 
@@ -231,24 +248,20 @@ VOID LineFeed(HWND hWnd) {
     } else {
         ScrollDown(hWnd);
     }
-    SetCaretPos(X, Y);
 }
 
 
 VOID VerticalTab(HWND hWnd) { 
     PWNDDATA    pwd         = NULL;
-    PLINE       pNewLine    = NULL;
     UINT        i           = 0;
     UINT        j           = 0;
-    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);    
-    pNewLine = (PLINE) malloc(sizeof(LINE));    
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);     
     
     if (Y < WINDOW_BOTTOM) { 
         Y++;
     } else {
         ScrollDown(hWnd);
     }
-    SetCaretPos(X, Y);
 }
 
 
@@ -265,7 +278,6 @@ VOID FormFeed(HWND hWnd) {
             CHARACTER(j, i).style       = 0;
          }
     }
-    SetCursorPos(0, 0);
 }
 
 
@@ -273,7 +285,6 @@ VOID CarraigeReturn(HWND hWnd) {
     PWNDDATA pwd = NULL;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);    
     X = 0;
-    SetCaretPos(X, Y);
 }
 
 
@@ -302,7 +313,6 @@ VOID MoveCursor(HWND hWnd, INT cxCoord, INT cyCoord, BOOL bScroll) {
     } else {
         Y = --cyCoord;
     }
-    SetCaretPos(X_POS, Y_POS);
 }
 
 
@@ -384,6 +394,5 @@ VOID SetScrollRegion(HWND hWnd, INT cyTop, INT cyBottom) {
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0); 
     MoveCursor(hWnd, 1, cyTop, FALSE);
     WINDOW_TOP      = --cyTop;
-    WINDOW_BOTTOM   = --cyBottom;
-    
+    WINDOW_BOTTOM   = --cyBottom;   
 }
