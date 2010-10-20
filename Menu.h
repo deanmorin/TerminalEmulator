@@ -14,8 +14,5 @@
 #define IDM_COM8        110
 #define IDM_COM9        111
 #define IDM_COMMSET		112
-#define IDM_BELL_DIS    113
-#define IDM_BELL_VIS    114
-#define IDM_BELL_AUR    115
 
 #endif

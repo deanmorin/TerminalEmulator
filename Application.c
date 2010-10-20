@@ -1,19 +1,21 @@
 /*------------------------------------------------------------------------------
 -- SOURCE FILE:     Application.c - Contains all the OSI "application layer"
---                                  functions for the Terminal Emulator.
+--                                  functions for the Dumb Terminal Emulator.
 --
--- PROGRAM:     Advanced Terminal Emulator Pro
+-- PROGRAM:     Hyper Omega Terminal
 --
 -- FUNCTIONS:
---              VOID    InitTerminal(HWND);
+--              BOOL    Connect(HWND);
+--              VOID    Disconnect(HWND);
+--              VOID    EchoBuffer(HWND, TCHAR[], COLORREF);
 --              LRESULT PerformMenuAction(HWND, UINT, WPARAM);
---              BOOL    ReadPort(HWND); 8*******************************************************
+--              BOOL    ReadPort(HWND);
 --              VOID    SelectPort(HWND, INT);
 --              BOOL    StoreTextForRepaint(HWND, TCHAR[], COLORREF);
 --              BOOL    WriteToPort(HWND, WPARAM);
 --
 --
--- DATE:        Oct 19, 2010
+-- DATE:        Oct 03, 2010
 --
 -- REVISIONS:   (Date and Description)
 --
@@ -22,7 +24,7 @@
 -- PROGRAMMER:  Dean Morin
 --
 -- NOTES:
--- Contains application level functions for the Terminal Emulator program.
+-- Contains application level functions for the Dumb Terminal Emulator program.
 ------------------------------------------------------------------------------*/
 
 #include "Application.h"
@@ -30,22 +32,19 @@
 
 VOID InitTerminal(HWND hWnd) {
 
-    PWNDDATA    pwd         = {0};
-    HDC         hdc         = {0};
-    COMMCONFIG  cc          = {0};
-    TEXTMETRIC  tm          = {0};
-    PAINTSTRUCT ps          = {0};
-    RECT        windowRect  = {0};
-    RECT        clientRect  = {0};
-    UINT        i           = 0;
-    UINT        j           = 0;
-    LONG        lxDiff      = 0;
-    LONG        lyDiff      = 0;
+    PWNDDATA    pwd = {0};
+    HDC         hdc = {0};
+    COMMCONFIG  cc  = {0};
+    TEXTMETRIC  tm  = {0};
+    PAINTSTRUCT ps  = {0};
+    UINT        i   = 0;
+    UINT        j   = 0;
 
-    if ((pwd = (PWNDDATA) calloc(1, sizeof(WNDDATA))) == 0) {
+    if ((pwd = (PWNDDATA) malloc(sizeof(WNDDATA))) == 0) {
         DISPLAY_ERROR("Error allocating memory for WNDDATA structure");
     }
     pwd->lpszCommName   = TEXT("COM3");
+    pwd->hPort          = NULL;
     SetWindowLongPtr(hWnd, 0, (LONG_PTR) pwd);
 
     // set default comm settings
@@ -57,50 +56,53 @@ VOID InitTerminal(HWND hWnd) {
 
     pwd->bConnected         = FALSE;
     pwd->psIncompleteEsc    = NULL;
-    pwd->iBellSetting       = IDM_BELL_DIS;
 
     // get text attributes and store values into the window extra struct
     hdc = GetDC(hWnd);
 	pwd->displayBuf.hFont = (HFONT) GetStockObject(OEM_FIXED_FONT);
-    SelectObject(hdc, pwd->displayBuf.hFont);
+    SelectObject(hdc, GetStockObject(OEM_FIXED_FONT));
     GetTextMetrics(hdc, &tm);
     ReleaseDC(hWnd, hdc);
 
     CHAR_WIDTH      = tm.tmAveCharWidth;
     CHAR_HEIGHT     = tm.tmHeight;
     CUR_FG_COLOR    = 7;
+    CUR_BG_COLOR    = 0;
+    CUR_STYLE       = 0;
+    X               = 0;
+    Y               = 0;
+    WINDOW_TOP      = 0;
     WINDOW_BOTTOM   = LINES_PER_SCRN -1;
+    CARET_COUNT     = 0;
 
     CreateCaret(hWnd, NULL, PADDING, PADDING);
     ShowCaret(hWnd);
 
     // initialize a "blank" display buffer
     for (i = 0; i < LINES_PER_SCRN; i++) {
-        pwd->displayBuf.rows[i] = (PLINE) calloc(1, sizeof(LINE));
+        pwd->displayBuf.rows[i] = (PLINE) malloc(sizeof(LINE));
         for (j = 0; j < CHARS_PER_LINE; j++) {
             CHARACTER(j, i).character   = ' ';
             CHARACTER(j, i).fgColor     = 7;
+            CHARACTER(j, i).bgColor     = 0;
+            CHARACTER(j, i).style       = 0;
         }
     }
-    GetWindowRect(hWnd, &windowRect);
-    GetClientRect(hWnd, &clientRect);
-
-    lxDiff  = (windowRect.right  - windowRect.left) 
-            - (clientRect.right  - clientRect.left);
-    lyDiff  = (windowRect.bottom - windowRect.top)
-            - (clientRect.bottom - clientRect.top);
-
-    MoveWindow(hWnd,
-               windowRect.left, windowRect.top,
-               CHAR_WIDTH  * CHARS_PER_LINE + PADDING * 2 + lxDiff,
-               CHAR_HEIGHT * LINES_PER_SCRN + PADDING * 2 + lyDiff,
-               TRUE);
+    
+    SetWindowPos(hWnd, NULL, 50, 50, 
+                 (int) (CHAR_WIDTH  * CHARS_PER_LINE * X_FUDGE_FACTOR
+                        + 2 * PADDING),
+                 (int) (CHAR_HEIGHT * LINES_PER_SCRN * Y_FUDGE_FACTOR 
+                        + 2 * PADDING),
+                 SWP_NOREPOSITION | SWP_SHOWWINDOW | SWP_NOZORDER);
+    ShowWindow(hWnd, SW_SHOW);
+    UpdateWindow(hWnd);
 }
 
 /*------------------------------------------------------------------------------
 -- FUNCTION:    PerformMenuAction
 --
--- DATE:        Oct 19, 2010
+-- DATE:        Oct 3, 2010
 --
 -- REVISIONS:   (Date and Description)
 --
@@ -110,7 +112,8 @@ VOID InitTerminal(HWND hWnd) {
 --
 -- INTERFACE:   LRESULT PerformMenuAction(HWND, UINT, WPARAM)
 --
--- RETURNS:     VOID.
+-- RETURNS:     The result that will be passed onto the winproc. It will always
+--              be 0 since this function does not check for any errors.
 --
 -- NOTES:
 --              Responds to a user's selection of a menu item.
@@ -119,7 +122,6 @@ VOID PerformMenuAction(HWND hWnd, UINT message, WPARAM wParam) {
     
     PWNDDATA   pwd = NULL;
     COMMCONFIG  cc;
-    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
 
     switch (LOWORD(wParam)) {
                 
@@ -146,17 +148,10 @@ VOID PerformMenuAction(HWND hWnd, UINT message, WPARAM wParam) {
         case IDM_COM9:  SelectPort(hWnd, IDM_COM9);  return;
 
         case IDM_COMMSET:
-            if (!CommConfigDialog(pwd->lpszCommName, hWnd, &cc)) {
-                DISPLAY_ERROR("The comm settings dialogue failed");
-            }
-            if (!SetCommState(pwd->hPort, &cc.dcb)) {
-                DISPLAY_ERROR("The comm settings did not set properly.\nPlease ensure that the port exists");
-            }
+            pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
+            CommConfigDialog(pwd->lpszCommName, hWnd, &cc);
+            SetCommState(pwd->hPort, &cc.dcb);
 		    return;
-
-        case IDM_BELL_DIS:  SetBell(hWnd, IDM_BELL_DIS);    return;
-        case IDM_BELL_VIS:  SetBell(hWnd, IDM_BELL_VIS);    return;
-        case IDM_BELL_AUR:  SetBell(hWnd, IDM_BELL_AUR);    return;
         
         default:
             return;
@@ -165,7 +160,7 @@ VOID PerformMenuAction(HWND hWnd, UINT message, WPARAM wParam) {
 
 
 VOID Paint(HWND hWnd) {
-    PLOGFONT	    plf         = NULL;
+    LOGFONT			lf;
     PWNDDATA        pwd         = NULL;
     CHAR            a[2]        = {0};
     HDC             hdc         = {0};
@@ -176,7 +171,6 @@ VOID Paint(HWND hWnd) {
     UINT            tempbgColor = 0;
 	UINT            tempStyle	= 0;
     pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
-    plf = (PLOGFONT) calloc(1, sizeof(LOGFONT));
 
     HideCaret(hWnd);
     hdc = BeginPaint(hWnd, &ps) ;
@@ -188,7 +182,6 @@ VOID Paint(HWND hWnd) {
 
     SetTextColor(hdc, TXT_COLOURS[CUR_FG_COLOR]);
     SetBkColor(hdc, TXT_COLOURS[CUR_BG_COLOR]);
-
                              
     for (i = 0; i < LINES_PER_SCRN; i++) {
         for (j = 0; j < CHARS_PER_LINE; j++) {
@@ -200,13 +193,13 @@ VOID Paint(HWND hWnd) {
             if (CHARACTER(j, i).bgColor != tempbgColor) {
 	            SetBkColor(hdc, TXT_COLOURS[CHARACTER(j, i).bgColor]);
                 tempbgColor = CHARACTER(j, i).bgColor;
-            }/*
+            }
             if (CHARACTER(j, i).style != CUR_STYLE) {
-				GetObject(pwd->displayBuf.hFont, sizeof(LOGFONT), plf);
-				plf->lfUnderline = CHARACTER(j, i).style;
-				SelectObject(hdc, CreateFontIndirect(plf));
+				GetObject(pwd->displayBuf.hFont, sizeof(LOGFONT), &lf);
+				lf.lfUnderline = CHARACTER(j, i).style;
+				SelectObject(hdc, CreateFontIndirect(&lf));
 				tempStyle	= CUR_STYLE;
-            }*/
+            }
 
             a[0] = CHARACTER(j, i).character;
             TextOut(hdc, CHAR_WIDTH * j + PADDING, CHAR_HEIGHT * i + PADDING,
@@ -235,10 +228,3 @@ VOID ShowTheCursor(HWND hWnd, BYTE flag) {
 }
 
 
-VOID SetBell(HWND hWnd, INT iSelected) {
-    PWNDDATA pwd;
-    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
-    CheckMenuItem(GetMenu(hWnd), pwd->iBellSetting, MF_UNCHECKED);
-    CheckMenuItem(GetMenu(hWnd), iSelected,        MF_CHECKED);
-    pwd->iBellSetting = iSelected;
-}

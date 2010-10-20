@@ -6,7 +6,7 @@
 #define READ_BUFSIZE    128
 #define WAIT_TIME       100
 
-VOID            ProcessCommError(HANDLE hPort);
 DWORD WINAPI    ReadThreadProc(HWND hWnd);
+VOID            ProcessCommError(HANDLE hPort);
 
 #endif

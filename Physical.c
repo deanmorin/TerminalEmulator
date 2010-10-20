@@ -9,8 +9,14 @@
 -- PROGRAM:     Advanced Terminal Emulator Pro
 --
 -- FUNCTIONS:
---              DWORD WINAPI    ReadThreadProc(HWND);
---              VOID            ProcessCommError(HANDLE);
+--              BOOL    Connect(HWND);
+--              VOID    Disconnect(HWND);
+--              VOID    EchoBuffer(HWND, TCHAR[], COLORREF);
+--              LRESULT PerformMenuAction(HWND, UINT, WPARAM);
+--              BOOL    ReadPort(HWND);
+--              VOID    SelectPort(HWND, INT);
+--              BOOL    StoreTextForRepaint(HWND, TCHAR[], COLORREF);
+--              BOOL    WriteToPort(HWND, WPARAM);
 --
 --
 -- DATE:        Oct 13, 2010

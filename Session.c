@@ -1,27 +1,3 @@
-/*------------------------------------------------------------------------------
--- SOURCE FILE:     Session.c   - Contains all the OSI "presentation layer"
---                                functions for the Terminal Emulator.
---
--- PROGRAM:     Advanced Terminal Emulator Pro
---
--- FUNCTIONS:
---              BOOL    Connect(HWND);
---              VOID    Disconnect(HWND);
---              VOID    SelectPort(HWND, INT);
---
---
--- DATE:        Oct 19, 2010
---
--- REVISIONS:   (Date and Description)
---
--- DESIGNER:    Dean Morin
---
--- PROGRAMMER:  Dean Morin
---
--- NOTES:
--- Contains session level functions for the Terminal Emulator program.
-------------------------------------------------------------------------------*/
-
 #include "Session.h"
 
 /*------------------------------------------------------------------------------
