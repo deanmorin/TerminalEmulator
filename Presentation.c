@@ -629,3 +629,39 @@ VOID SetScrollRegion(HWND hWnd, INT cyTop, INT cyBottom) {
     WINDOW_TOP      = --cyTop;
     WINDOW_BOTTOM   = --cyBottom;   
 }
+/*------------------------------------------------------------------------------
+-- FUNCTION:    ScreenAlignment
+--
+-- DATE:        Oct 19, 2010
+--
+-- REVISIONS:   (Date and Description)
+--
+-- DESIGNER:    Marcel Vangrootheest
+--
+-- PROGRAMMER:  Marcel Vangrootheest
+--
+-- INTERFACE:   VOID ScreenAlignment(HWND hWnd)
+--                          hWnd - the handle to the window
+--
+-- RETURNS:     VOID.
+--
+-- NOTES:
+--              Fills the screen with E's and moves the cursor to 1, 1 (0, 0 according
+--              to the display buffer).
+------------------------------------------------------------------------------*/
+VOID ScreenAlignment(HWND hWnd) { 
+    PWNDDATA    pwd = NULL;
+    UINT        i   = 0;
+    UINT        j   = 0;
+    pwd = (PWNDDATA) GetWindowLongPtr(hWnd, 0);
+
+    for (i = 0; i < LINES_PER_SCRN; i++) {
+        for (j = 0; j < CHARS_PER_LINE; j++) {
+            CHARACTER(j, i).character   = 'E';
+            CHARACTER(j, i).bgColor     = CUR_BG_COLOR;
+            CHARACTER(j, i).style       = 0;
+         }
+    }
+    X = 0;
+    Y = 0;
+}

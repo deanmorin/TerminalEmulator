@@ -182,6 +182,9 @@ VOID ProcessEsc(HWND hWnd, CHAR* psBuffer, DWORD length) {
 			if (i >= length)
 				break;
 			if (isdigit(psBuffer[i])) {
+				if (psBuffer[i] == '8') {
+					ScreenAlignment(hWnd);
+				}
 				if (i >= length - 1)
 					return;
 			}
@@ -193,6 +196,8 @@ VOID ProcessEsc(HWND hWnd, CHAR* psBuffer, DWORD length) {
 				return;
 			ProcessRead(hWnd, psBuffer + i, length - i);
 			return;
+		case 'F':
+		case 'G':
 		case '7':
 		case '8':
 			break;
@@ -331,6 +336,8 @@ BOOL CheckDigits(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 			        if (!CheckDigitsSemi(hWnd, psBuffer, length, i))
 			            return FALSE;
 			        break;
+				case 'c':
+					ProcessWrite(hWnd, '0', FALSE);
 				case 'q':
 					break;
 				default:
@@ -494,6 +501,8 @@ BOOL CheckDigitsQ(HWND hWnd, CHAR* psBuffer, DWORD length, DWORD *i) {
 						pwd->wordWrap = FALSE;
 					}
 				    break;
+				case 'c':
+					break;
 				default:
 					(*i)--;
 					break;
